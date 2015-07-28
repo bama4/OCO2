@@ -162,6 +162,7 @@ def findFilesByCoords(start_dir,long_,lat_, date):
         bound_long_ = input("Enter longitude bound: ")
 
 
+
     for f in start_dir.files:
         
         isInFile = False
@@ -227,10 +228,10 @@ def findFilesByCoords(start_dir,long_,lat_, date):
 
 
                                                                     #CO2 Levels
-                                    if(co2_ == "s"):
+                                    if(co2_ == "s"): #strong
                                         type_co2.append( averageCO2(getRawCO2Strong(file_obj)[i][j]) )
 
-                                    if(co2_ == "w"):
+                                    if(co2_ == "w"): #weak
                                         type_co2.append( averageCO2(getRawCO2Weak(file_obj)[i][j]) )
 
 
@@ -249,10 +250,10 @@ def findFilesByCoords(start_dir,long_,lat_, date):
 
 
                                                                       #CO2 Levels
-                                    if(co2_ == "s"):
+                                    if(co2_ == "s"): #strong
                                         type_co2.append( averageCO2(getRawCO2Strong(file_obj)[i][j]) )
 
-                                    if(co2_ == "w"):
+                                    if(co2_ == "w"): #weak
                                         type_co2.append( averageCO2(getRawCO2Weak(file_obj)[i][j]))
 
 
@@ -306,21 +307,7 @@ def averageCO2(lst):
         avg = avg + lst[i]
     return avg/len(lst)
 
-#calculate average CO2 levels for a given set of files/date
-def averageStrongCO2(files, date):
-    pass
 
-
-def averageWeakCO2(files, dates):
-    pass
-
-
-
-
-#calculate average CO2 levels for a given set of points
-def pointLevelStrongCO2(files,coords,date):
-    pass
-
-
-def pointLevelWeakCO2(files,coords,date):
+#raw co2 to xco2 (air molar fraction)
+def rawCO2ToXCO2(lst):
     pass

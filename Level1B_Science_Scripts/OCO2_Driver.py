@@ -4,7 +4,7 @@ import VFS
 import sys
 import OCO2_L1B
 
-COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average"]
+COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script"]
 
 PATH = ""
 SYS_NAME = "2014 - 2015 HDF5 FILES"
@@ -312,11 +312,19 @@ def procCommands(c):
                 #write to file?
                 ans = input("Write coords to file?")
                 if(ans == "y"):
-                    nam = input("Enter name of file")
+                    nam = input("Enter name of file: ")
                     saveCoordsToTextFile(nam, coordsToHamstermapFormat(files[FILE_COORDS] ,files[FILE_CO2_LEVELS]))
-
+        
                 else:
                     print("Not writing coords to file....")
+
+                #write file names to file?
+                ans = imput("Write to file names that fall into the given bounding?")
+                if(ans == "y"):
+                    nam = input("Enter name of file: ")
+                    saveToTextFile(files[FILE_NAME])
+                else:
+                    print("Not writing file names to file...")
 
         if c == 10: #print data set
             
@@ -361,6 +369,9 @@ def procCommands(c):
                 return
 
             print("Average latitude is : " + str(OCO2_L1B.getLatAvg(CURR_FILE)))
+
+        if c == 15: #run automatic script
+            pass
 
         if c == EXIT:
             print("BYE")
