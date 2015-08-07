@@ -72,7 +72,6 @@ def createScale(arr, inc):
 
     return lis
 
-
 pairs = processFileAsHamText(getFile())
 
 x,y,vals = createArrays(pairs)
