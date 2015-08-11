@@ -269,8 +269,12 @@ def procCommands(c):
         if c == 7: #print current directory
             
             checkFileSys()
-            CURR_DIR.print_d()
-            
+
+            if(CURR_DIR != None):
+                CURR_DIR.print_d()
+            else:
+                print("Current directory not set")
+
         if c == 8: #Flush Buffer
             
             BUFFER[:] = []

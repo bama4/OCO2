@@ -1,0 +1,18 @@
+import math
+import numpy
+
+
+DEFAULT_FILE_NAME = "BARROW_JUNE1_POINTS.txt"
+
+def getFileName():
+
+    try:
+
+    except StandardError:
+        
+
+def main():
+    
+
+
+

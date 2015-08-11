@@ -2,11 +2,9 @@ import h5py
 import os
 import VFS
 import sys
-import GOSAT_L2
-import formatConverter
+import OCO2_L1B
 
-COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Display date for given file"]
-
+COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script"]
 
 PATH = ""
 SYS_NAME = "2014 - 2015 HDF5 FILES"
@@ -19,10 +17,11 @@ EXIT = 99
 
 #HAMSTERMAP PARAMETERS
 HAM_MARKER = "circle1"
-HAM_COLOR = "orange"
-HAM_LEGEND = "Level 2 Points"
+HAM_COLOR = "yellow"
+HAM_LEGEND = "Level1B Points"
 
 #GOOGLE MAP PARAMETERS
+
 
 #check for valid input
 def isValidInput(inp):
@@ -59,12 +58,6 @@ def getInput():
     return c    
 
 
-
-#Get exact date of file
-def getDate(f_obj):
-    return GOSAT_L2.getDate(f_obj)
-
-
 #Get root path for file system
 def getRoot():
     
@@ -79,7 +72,7 @@ def getRoot():
             sys.exit(0)
             
         if(ans == "DEFAULT_PATH"):
-            ans = GOSAT_L2.DEFAULT_PATH
+            ans = OCO2_L1B.DEFAULT_PATH
         try:
             
             os.chdir(ans)
@@ -150,16 +143,38 @@ def saveToTextFile(name,lst):
         f.write(str(lst[i]))
     f.close()
 
+#converts coordinates to hamstermap format
+def coordsToHamstermapFormat(coords,other):
+    
+    string_list = []
+    LAT = 0
+    LONG = 1
+    CO2 = 2
+ 
+    default_leg = input("Use default HAM_LEGEND for legend and default Number for Number? ")
+    
 
-#saves coords to file
+    if(default_leg == "y"): #using default legend
+        for i in range(len(coords)):
+            string_list.append(str(coords[i][LAT])+str("\t")+ str(coords[i][LONG]) + str("\t") +str(HAM_MARKER) + str("\t") + str(HAM_COLOR) + str("\t") + str(i+1) + str("\t") + str(HAM_LEGEND)+ str("\n"))
+    else: #use custom legend
+        leg = input("Enter legend to use: ")
+        for i in range(len(coords)):
+            string_list.append(str(coords[i][LAT])+str("\t")+ str(coords[i][LONG]) + str("\t") +str(HAM_MARKER) + str("\t") + str(HAM_COLOR) + str("\t") + str(other[i]) + str("\t") + str(leg)+ str("\n"))
+
+    return string_list
+
+
+
 def saveCoordsToTextFile(name, formatted_list):
     f = open(name, "w")
     for i in range(len(formatted_list)):
         f.write(str(formatted_list[i]))
     f.close()
 
-#processes commands
+
 def procCommands(c):
+    
         
         global FILE_SYS
         global CURR_DIR
@@ -168,6 +183,7 @@ def procCommands(c):
         
         if c == 0:
         
+            
             getRoot()
             return 
             
@@ -253,12 +269,8 @@ def procCommands(c):
         if c == 7: #print current directory
             
             checkFileSys()
-
-            if(CURR_DIR != None):
-                CURR_DIR.print_d()
-            else:
-                print("Current directory not set")
-
+            CURR_DIR.print_d()
+            
         if c == 8: #Flush Buffer
             
             BUFFER[:] = []
@@ -284,7 +296,7 @@ def procCommands(c):
                 FILE_CO2_LEVELS = 3
 
                 #find the files with the correct coords (directory , longitude, latitude, optional date)
-                files = GOSAT_L2.findFilesByCoords(CURR_DIR, long_, lat_,date)
+                files = OCO2_L1B.findFilesByCoords(CURR_DIR, long_, lat_,date)
                 
                 #print file names
                 print("The following files will be placed in the buffer: ")
@@ -300,17 +312,14 @@ def procCommands(c):
                 #write to file?
                 ans = input("Write coords to file?")
                 if(ans == "y"):
-                    
-                    form = format(formatConverter.getValidFormat(),files[FILE_COORDS] ,files[FILE_CO2_LEVELS])
-                    
                     nam = input("Enter name of file: ")
-                    saveCoordsToTextFile(nam, form)
+                    saveCoordsToTextFile(nam, coordsToHamstermapFormat(files[FILE_COORDS] ,files[FILE_CO2_LEVELS]))
         
                 else:
                     print("Not writing coords to file....")
 
                 #write file names to file?
-                ans = input("Write to file names that fall into the given bounding?")
+                ans = imput("Write to file names that fall into the given bounding?")
                 if(ans == "y"):
                     nam = input("Enter name of file: ")
                     saveToTextFile(files[FILE_NAME])
@@ -352,21 +361,17 @@ def procCommands(c):
                 print("Current file not set")
                 return
 
-            print("Average longitude is : " + str(GOSAT_L2.getLongAvg(CURR_FILE)))
+            print("Average longitude is : " + str(OCO2_L1B.getLongAvg(CURR_FILE)))
 
         if c == 14: #display lat. average of file
             if CURR_FILE == None:
                 print("Current file not set")
                 return
 
-            print("Average latitude is : " + str(GOSAT_L2.getLatAvg(CURR_FILE)))
+            print("Average latitude is : " + str(OCO2_L1B.getLatAvg(CURR_FILE)))
 
-        if c == 15: #display date of current file
-            if(CURR_FILE != None):
-                print(getDate(CURR_FILE))
-            else:
-                print("Current File not set")
-                
+        if c == 15: #run automatic script
+            pass
 
         if c == EXIT:
             print("BYE")

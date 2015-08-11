@@ -3,10 +3,12 @@ import os
 import VFS
 import sys
 import GOSAT_L2
-import formatConverter
+
 
 COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Display date for given file"]
 
+
+FORMATS = ["Hamstermap.com format", "Microsoft Excel Format"]
 
 PATH = ""
 SYS_NAME = "2014 - 2015 HDF5 FILES"
@@ -149,6 +151,29 @@ def saveToTextFile(name,lst):
     for i in range(len(lst)):
         f.write(str(lst[i]))
     f.close()
+
+#converts coordinates to hamstermap format
+def coordsToHamstermapFormat(coords,other):
+    
+    string_list = []
+    LAT = 0
+    LONG = 1
+    CO2 = 2
+ 
+    default_leg = input("Use default HAM_LEGEND for legend and default Number for Number? ")
+    
+
+    if(default_leg == "y"): #using default legend
+        for i in range(len(coords)):
+            string_list.append(str(coords[i][LAT])+str("\t")+ str(coords[i][LONG]) + str("\t") +str(HAM_MARKER) + str("\t") + str(HAM_COLOR) + str("\t") + str(i+1) + str("\t") + str(HAM_LEGEND)+ str("\n"))
+    else: #use custom legend
+        leg = input("Enter legend to use: ")
+        for i in range(len(coords)):
+            string_list.append(str(coords[i][LAT])+str("\t")+ str(coords[i][LONG]) + str("\t") +str(HAM_MARKER) + str("\t") + str(HAM_COLOR) + str("\t") + str(other[i]) + str("\t") + str(leg)+ str("\n"))
+
+    return string_list
+
+
 
 
 #saves coords to file
@@ -300,11 +325,8 @@ def procCommands(c):
                 #write to file?
                 ans = input("Write coords to file?")
                 if(ans == "y"):
-                    
-                    form = format(formatConverter.getValidFormat(),files[FILE_COORDS] ,files[FILE_CO2_LEVELS])
-                    
                     nam = input("Enter name of file: ")
-                    saveCoordsToTextFile(nam, form)
+                    saveCoordsToTextFile(nam, coordsToHamstermapFormat(files[FILE_COORDS] ,files[FILE_CO2_LEVELS]))
         
                 else:
                     print("Not writing coords to file....")
