@@ -1,53 +1,50 @@
-;--load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
-;--retrieves file names
+DEFAULT_CONT = 0.001
+SCALE = 1000000
+
+;--adjust contour levels
+;--returns contour levels based on the default scale
+function adjContour(data)
+local max_n,min_n
+
+begin
+max_n = max(data)
+min_n = min(data)
+end
+
+;--retrieves file namess
 function get_file_names()
 local names,tmp_str
 begin
-	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/ -name '*.h5' >> file_names.txt")
-	;--print(tmp_str)
-	names = asciiread("file_names.txt",-1,"string")
-	return names
+	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/July_Test_Week/181 -name '*.h5' ") ; July 
+	
+	return tmp_str
 end
-
 
 ;--gets data from all files in the given directory
 function processFiles(names)
-local longs,lats,data,counter,file_tmps,files_0,tmp 
+local longs,lats,data,files_0,avg_data 
 
 begin
 
-	files_0 = addfile(names(0),"r")
-	counter = 0
 
-	;--set arrays for longitude and latitude
-	longs = new(1,float)
-	lats = new(1,float)
-	data = new(1,float)
-	tmp = new(1,float)
+	files_0 = addfiles(names,"r")
+	longs = files_0[:]->retrieval_longitude
+  	lats  = files_0[:]->retrieval_latitude   
+ 	data  = files_0[:]->xco2
+	avg_data = avg(data)	
 
-	copy_VarMeta(files_0->retrieval_longitude, longs)
-	copy_VarMeta(files_0->retrieval_latitude, lats)
-	copy_VarMeta(files_0->xco2, data)
+	;--data = abs(data - avg_data)*SCALE 
+	;--scale values
 	
-	
-	print("Opening files")
-	print(dimsizes(names))
+	data = data*SCALE
 
-;--get data from all files found
-do while (counter .lt. dimsizes(names))
-	
 	delete(files_0)
-	files_0 = addfile(names(counter),"r")
-	print(counter)
-	print(longs)
-	
-	longs = array_append_record(files_0->retrieval_longitude,longs,0)
-	data = array_append_record(files_0->xco2,data,0)
-	lats = array_append_record(files_0->retrieval_latitude,lats,0)
-	counter = counter + 1
-end do
+	delete(avg_data)
 	return ([/longs,lats,data/])
+	
+	
 end
 
 function get_data_()
@@ -55,6 +52,7 @@ local n,tmp_list
 begin
 	n = get_file_names()
 	tmp_list = processFiles(n)
-	print(tmp_list)
+	
 	return tmp_list
 end
+
