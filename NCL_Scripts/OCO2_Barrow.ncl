@@ -17,7 +17,6 @@ begin
 	longitudes = list_tmp[0]
 	latitudes = list_tmp[1]
 	var = list_tmp[2]
-	
 
 	;-- define the workstation (plot type and name)
 	wks = gsn_open_wks("png","unstructured_grid")
@@ -39,12 +38,12 @@ begin
 	;--res@mpMaxLonF = lon0
 
 	;--manually set the contour levels with the following 3 resources
- ;--res@cnLevelSelectionMode = "ManualLevels"	
-  ;--res@cnMinLevelValF  = 0.
-  ;--res@cnMaxLevelValF  = 500.			
-  ;--res@cnLevelSpacingF = 100.			
+        res@cnLevelSelectionMode = "ManualLevels"	
+        res@cnMinLevelValF  = 336.6
+        res@cnMaxLevelValF  = 500.0			
+  	res@cnLevelSpacingF = 75.0	
 	
-	;-- draw the contour map
+	;--draw the contour map
 	plot = gsn_csm_contour_map(wks, var, res)
 	
 end

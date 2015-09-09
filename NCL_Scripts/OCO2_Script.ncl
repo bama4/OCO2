@@ -17,7 +17,7 @@ end
 function get_file_names()
 local names,tmp_str
 begin
-	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/July_Test_Week/181 -name '*.h5' ") ; July 
+	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/Less/ -name '*.h5' ") ; July 
 	
 	return tmp_str
 end
@@ -30,8 +30,8 @@ begin
 
 
 	files_0 = addfiles(names,"r")
-	longs = files_0[:]->retrieval_longitude
-  	lats  = files_0[:]->retrieval_latitude   
+	longs = files_0[:]->longitude
+  	lats  = files_0[:]->latitude   
  	data  = files_0[:]->xco2
 	avg_data = avg(data)	
 
