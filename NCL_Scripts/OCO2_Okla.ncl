@@ -5,10 +5,10 @@ load "/home/Bama4/OCO2_Data/OCO2_Script_LITE.ncl"
 begin
 
 	;-- Bounds for Region
-	lon0 = -153.0
-	lon1 = -163.0
-	lat0 = 72.4
-	lat1 = 69.0
+	lon0 = -96.5
+	lon1 = -99.5
+	lat0 = 36.5
+	lat1 = 34.5
 
 	;-- Region coordinates and data
 	
@@ -28,7 +28,7 @@ begin
 	res@cnFillOn = True ;-- turn on contour fill
 	res@cnFillPalette = "rainbow"  
 	res@cnLinesOn            = False              
-	res@tiMainString = "Barrow, Alaska (72.4 , -153.0) (69.0 , -163.0)"
+	res@tiMainString = "Oklahoma City, Oklahoma (36.5 , -99.5) (34.5, -96.5)"
 	res@tiMainFontHeightF = 0.02
 	res@cnFillMode = "RasterFill"
 	res@cnRasterSmoothingOn = True

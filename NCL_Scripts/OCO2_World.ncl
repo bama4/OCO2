@@ -5,10 +5,10 @@ load "/home/Bama4/OCO2_Data/OCO2_Script_LITE.ncl"
 begin
 
 	;-- Bounds for Region
-	lon0 = -153.0
-	lon1 = -163.0
-	lat0 = 72.4
-	lat1 = 69.0
+	;--lon0 = -153.0
+	;--lon1 = -163.0
+	;--lat0 = 72.4
+	;--lat1 = 69.0
 
 	;-- Region coordinates and data
 	
@@ -28,17 +28,17 @@ begin
 	res@cnFillOn = True ;-- turn on contour fill
 	res@cnFillPalette = "rainbow"  
 	res@cnLinesOn            = False              
-	res@tiMainString = "Barrow, Alaska (72.4 , -153.0) (69.0 , -163.0)"
+	res@tiMainString = "World Map"
 	res@tiMainFontHeightF = 0.02
 	res@cnFillMode = "RasterFill"
 	res@cnRasterSmoothingOn = True
 	res@sfXArray = list_tmp[0]
 	res@sfYArray = list_tmp[1]
 
-	res@mpMinLatF = lat1
-	res@mpMaxLatF = lat0
-	res@mpMinLonF = lon1
-	res@mpMaxLonF = lon0
+	;--res@mpMinLatF = lat1
+	;--res@mpMaxLatF = lat0
+	;--res@mpMinLonF = lon1
+	;--res@mpMaxLonF = lon0
 	res@gsnSpreadColors  = True
 	;--manually set the contour levels with the following 3 resources
 	
