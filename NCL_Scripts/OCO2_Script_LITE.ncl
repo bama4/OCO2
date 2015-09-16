@@ -1,7 +1,7 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 
 DEFAULT_CONT = 0.001
-SCALE = 1000000
+SCALE = 1
 
 ;--adjust contour levels
 ;--returns contour levels based on the default scale
@@ -17,8 +17,7 @@ end
 function get_file_names()
 local names,tmp_str
 begin
-	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/July_2015/ -name '*.h5' ") ; July 
-	
+	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/OCO2_LITE_DATA/ -name 'oco2_LtCO2_1507*.nc4' ") ; July 
 	return tmp_str
 end
 
@@ -28,11 +27,11 @@ local longs,lats,data,files_0,avg_data,sounding
 
 begin
 	
-	files_0 = addfiles(names,"r")
-	longs =files_0[:]->longitude
-  	lats  =files_0[:]->latitude   
- 	data  = files_0[:]->xco2
-	avg_data = avg(data)	
+	files_0 =addfiles(names,"r")
+	longs =files_0[:]->$"longitude"$
+  	lats  =files_0[:]->$"latitude"$   
+ 	data  =files_0[:]->$"xco2"$
+	avg_data =avg(data)	
 
 	;--data = abs(data - avg_data)*SCALE 
 	;--scale values
