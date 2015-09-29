@@ -1,17 +1,31 @@
+import threading
 import os
+import sys
 import h5py
 import math 
 
+
 #default root path
-DEFAULT_PATH = "//home//bama4//OCO2_L1BSc_Data//2015"
+DEFAULT_PATH = "//home//bama4//OCO2_L1BSc_Data//2014"
 EXT = ".h5"
 
 #constants for converting deg to km 
-KM_LAT = 110.57
+KM_LAT = 110.574
 KM_LONG = 111.32
 
 DEG_LAT_RANGE = 2.4
 DEG_LONG_RANGE = 10.0
+
+KM_LAT_RANGE = 6 
+KM_LONG_RANGE = 6
+
+WATER = 1
+
+NAME = 0
+LAT = 1
+LONG = 2
+
+MATCHING_POINTS = []
 
 #return coord of the given dataset
 def processCoordDataSet(data_set):
@@ -34,11 +48,15 @@ def degLongToKm(deg):
     
 #converts km to latitude
 def kmTodegLong(km):
-    return km/KM_LONG
+    return km/(KM_LONG)
 
 #converts moles to ppm
 def molesToPPM(mol):
     return mol/pow(10,6)
+
+#check if water present
+def isWater(w):
+    return (WATER == w)
 
 #average latitude from file
 def getLatAvg(data_file):
@@ -113,6 +131,12 @@ def getRawLat(data_file):
 
     return LATS
 
+#obtain water indicator array
+def getWaterArray(data_file):
+    S_M = data_file["SoundingGeometry"]
+    WAT = S_M["sounding_land_water_indicator"]
+    return WAT
+
 #obtain raw longitudes
 def getRawLong(data_file):
     S_M = data_file["SoundingGeometry"]
@@ -138,6 +162,61 @@ def isFileDateMatch(file_name, date):
         return False
     else:
         return True
+
+
+def storeMatchingPoints(files,coords, num_threads):
+
+
+   thread_lst = []
+
+
+   for f in files:
+      for thread_ in range(1,num_threads+1):
+         try:
+
+            t = threading.Thread(target=searchArray, args=(getRawLat(f),getRawLong(f),getWaterArray(f),coords[  (len(coords)*(thread_-1))/num_threads   :  (len(coords)*thread_)/num_threads   ] ,))
+	    thread_lst.append(t) 
+	    t.start()
+
+	 except:
+	    print("threading error for thread " + str(thread_))
+	    return
+
+ 
+
+
+def searchArray(lat_raw,long_raw,water_lst,coords):
+
+    
+    for k in range(len(coords)):
+	
+	 #are coords in range
+    	for i in range(len(lat_raw)):
+      	   for j in range(len(lat_raw[i])):
+                         
+              if ( isInRange(coords[k][LAT],lat_raw[i][j], kmTodegLat(KM_LAT_RANGE) ) and isWater(water_lst[i][j]) == False):
+                 if (isInRange(coords[k][LONG],long_raw[i][j],kmTodegLong(KM_LONG_RANGE)) ):
+
+                    MATCHING_POINTS.append(  (lat_raw[i][j],long_raw[i][j],getRawCO2Strong(file_obj)[i][j]) )
+                    print("Point " + str( (lat_raw[i][j],long_raw[i][j],getRawCO2Strong(file_obj)[i][j])) + " added.")
+                         
+           	
+
+#find raw coords and files
+def findRawFilesByRawCoords(start_dir,coords):
+    
+   files = start_dir.returnAllFiles()
+   f_h5 = []
+	
+#get .h5 files
+   for f in files:
+      if(f.name[-len(EXT):] == EXT):
+         f_h5.append(h5py.File(f.path,"r"))
+	 
+   num_threads = int(input("Enter the number of threads to use"))
+   storeMatchingPoints(f_h5,coords,num_threads)
+   return MATCHING_POINTS
+	    
 
 #find specific files by their coordinates (with optional specified date
 #Return file names, file objects, and the coordinates that are within the 
@@ -266,17 +345,20 @@ def findFilesByCoords(start_dir,long_,lat_, date):
 
     return (fils, fil_names, coords, type_co2)
 
-#Check if the two points/numbers are within the given range (num1 to num1-range_)
+#Check if the two points/numbers are within the given range (num2 to num2-range_)
+#Where num2 are the raw points
 def isInRange(num1,num2,range_):
-    p1 = num1
-    p2 = num1-range_
-    if (num2 >= 0):#pos coords
-        if(num2 <= p1 and num2 >= p2):
+    p1 = num2
+    p2 = num2-range_
+    
+    #print("BEGIN " + str(num2) + " END " + str(p2))
+    if (num1 >= 0):#pos coords
+        if(num1 <= p1 and num1 >= p2):
             return True
         return False
     else:#neg coords
-        p2 = num1+range_
-        if(num2 >= p1 and num2 <= p2):
+        p2 = num2+range_
+        if(num1 >= p1 and num1 <= p2):
             return True
         return False
 

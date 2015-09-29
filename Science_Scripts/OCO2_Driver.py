@@ -4,7 +4,7 @@ import VFS
 import sys
 import OCO2_L1B
 
-COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script"]
+COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point."]
 
 PATH = ""
 SYS_NAME = "2014 - 2015 HDF5 FILES"
@@ -36,6 +36,8 @@ def isValidInput(inp):
         if(isValid == True):
             break
     return isValid
+
+
 
 #getinput
 def getInput():
@@ -134,6 +136,22 @@ def save(obj):
     global BUFFER
     BUFFER.append(obj)    
 
+#file is in format NAME  LAT  LONG  TIMEOFFSET
+#returns list of tuples of (NAME,LAT,LONG)
+def getCoordsFromFile(name):
+    f = open(name, 'r')
+    
+    coords = []
+    lst = f.read().split("\n")
+    for i in range(len(lst)):
+        sublst = lst[i].split(" ")
+        print(sublst)
+
+        if(len(sublst)>=3):
+            coords.append((sublst[0],float(sublst[1]),float(sublst[2])))
+
+    return coords
+
 #save names in buffer to text file
 def saveToTextFile(name,lst):    
     global BUFFER
@@ -172,10 +190,15 @@ def saveCoordsToTextFile(name, formatted_list):
         f.write(str(formatted_list[i]))
     f.close()
 
+#where lst_tup is a list of (NAME , LAT, LONG)
+def saveListTupleToFile(name, lst_tup):
+    f = open(name,"w")
+    for i in range(len(lst_tup)):
+        f.write(lst_tup[i][0] + " " + lst_tup[i][1] + " " + lst_tup[i][2])
+    f.close()
 
-def procCommands(c):
-    
-        
+
+def procCommands(c):        
         global FILE_SYS
         global CURR_DIR
         global CURR_FILE
@@ -375,7 +398,20 @@ def procCommands(c):
             print("Average latitude is : " + str(OCO2_L1B.getLatAvg(CURR_FILE)))
 
         if c == 15: #run automatic script
-            pass
+            
+            try:
+
+                n = input("Enter the file name containing the coords")
+                coords = getCoordsFromFile(n)
+                dat = OCO2_L1B.findRawFilesByRawCoords(CURR_DIR,coords)
+
+                #write info to file
+                n = input("Enter the file to write to")
+                saveListTupleToFile(n,dat)
+
+            except KeyError:
+                    print("Invalid File")
+                    return
 
         if c == EXIT:
             print("BYE")

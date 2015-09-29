@@ -95,6 +95,14 @@ class Directory:
     def addFile(self,f):
         self.files.append(f)
         
+    #return files
+    def returnAllFiles(self):
+        
+        files = []
+        for d in self.subdirs:
+            for f in d.getFiles():
+                files.append(f)
+        return files
         
 #Virtual File System (VFS) object class        
 class VFS:
