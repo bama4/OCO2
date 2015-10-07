@@ -3,8 +3,9 @@ import os
 import VFS
 import sys
 import OCO2_L1B
+import OCO2_LITE
 
-COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point."]
+COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B).","Run Automatic Script Given file, get all Coords. within a certain point(OCO2_LITE)"]
 
 PATH = ""
 SYS_NAME = "2014 - 2015 HDF5 FILES"
@@ -73,8 +74,10 @@ def getRoot():
         if(ans == EXIT):
             sys.exit(0)
             
-        if(ans == "DEFAULT_PATH"):
+        if(ans == "DEFAULT_PATH_OCO2L1B"):
             ans = OCO2_L1B.DEFAULT_PATH
+        elif(ans == "DEFAULT_PATH_OCO2LITE"):
+            ans = OCO2_LITE.DEFAULT_PATH
         try:
             
             os.chdir(ans)
@@ -192,11 +195,20 @@ def saveCoordsToTextFile(name, formatted_list):
 
 #where lst_tup is a list of (NAME , LAT, LONG)
 def saveListTupleToFile(name, lst_tup):
-    f = open(name,"w")
-    for i in range(len(lst_tup)):
-        f.write(lst_tup[i][0] + " " + lst_tup[i][1] + " " + lst_tup[i][2])
-    f.close()
+    
+    NAME = 0
+    LAT  = 1
+    LONG = 2
 
+    try:
+
+        f = open(name,"w")
+        for i in range(len(lst_tup)):
+            f.write(str(lst_tup[i][NAME]) + " " + str(lst_tup[i][LAT]) + " " + str(lst_tup[i][LONG]) + "\n")
+        f.close()
+    except:
+        print("OCO2_ Driver error")
+        sys.exit(1)
 
 def procCommands(c):        
         global FILE_SYS
@@ -412,6 +424,21 @@ def procCommands(c):
             except KeyError:
                     print("Invalid File")
                     return
+
+
+        if c == 16:
+            
+            try:
+                n = input("Enter the file name containing the coords")
+                coords = getCoordsFromFile(n)
+                dat = OCO2_LITE.findRawFilesByRawCoords(CURR_DIR,coords)
+
+                #write info to file
+                n = input("Enter the file to write to")
+                saveListTupleToFile(n,dat)
+
+            except:
+                print("Invalid")
 
         if c == EXIT:
             print("BYE")

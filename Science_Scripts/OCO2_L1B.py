@@ -6,7 +6,7 @@ import math
 
 
 #default root path
-DEFAULT_PATH = "//home//bama4//OCO2_L1BSc_Data//2014"
+DEFAULT_PATH = "//home//bama4//OCO2_L1BSc_Data//2015"
 EXT = ".h5"
 
 #constants for converting deg to km 
@@ -26,6 +26,7 @@ LAT = 1
 LONG = 2
 
 MATCHING_POINTS = []
+NUM_THREADS = 100
 
 #return coord of the given dataset
 def processCoordDataSet(data_set):
@@ -164,43 +165,69 @@ def isFileDateMatch(file_name, date):
         return True
 
 
-def storeMatchingPoints(files,coords, num_threads):
+def storeMatchingPoints(files,coords):
 
 
    thread_lst = []
 
 
    for f in files:
-      for thread_ in range(1,num_threads+1):
-         try:
+      try:
 
-            t = threading.Thread(target=searchArray, args=(getRawLat(f),getRawLong(f),getWaterArray(f),coords[  (len(coords)*(thread_-1))/num_threads   :  (len(coords)*thread_)/num_threads   ] ,))
-	    thread_lst.append(t) 
-	    t.start()
+          lats = getRawLat(f)
+          longs = getRawLong(f)
+          water = getWaterArray(f)
 
-	 except:
-	    print("threading error for thread " + str(thread_))
-	    return
+          t = threading.Thread(target=searchArray, args=(lats,longs,water,coords,f,))
+            
+          thread_lst.append(t) 
+          t.start()
+          t.join()
+            
+      except:
+          print("threading error for thread ")
+          return
 
  
+      print("Thread " + str(f) + " done.")
 
 
-def searchArray(lat_raw,long_raw,water_lst,coords):
+def searchArray(lat_raw,long_raw,water_lst,coords,file_obj):
+
+    print(coords)
+    thread_lst = []
+    try:
+        for k in range(len(coords)):
+            for j in range(1,NUM_THREADS+1):
+                beg_ = len(lat_raw)*(j-1)
+                end_= NUM_THREADS
+                beg2_ = len(lat_raw)*(j)
+                t = threading.Thread(target=getMatchCoord, args=(file_obj,coords[k],lat_raw[(beg_/end_):(beg2_/end_)],long_raw[(beg_/end_):(beg2_/end_)],water_lst[(beg_/end_):(beg2_/end_)],)) 
+
+                thread_lst.append(t)
+                t.start()
+                t.join()
+
+    except KeyError:
+
+        print("Error: exiting now")
+        sys.exit(1)
+    return
+
+
+def getMatchCoord(file_obj,coords, lat_raw, long_raw, water_lst):
+ #are coords in range
+    for i in range(len(lat_raw)):
+        for j in range(len(lat_raw[i])):
+
+            if ( isInRange(coords[LAT],lat_raw[i][j], kmTodegLat(KM_LAT_RANGE) ) and isWater(water_lst[i][j]) == False):
+                if (isInRange(coords[LONG],long_raw[i][j],kmTodegLong(KM_LONG_RANGE)) ):
+                    co2 = averageCO2(file_obj)[i][j]
+                    MATCHING_POINTS.append(  (lat_raw[i][j],long_raw[i][j],co2) )
+                    print("Point " + str( (lat_raw[i][j],long_raw[i][j],co2) ) + " added.")
+            #print("On Current Coord: " + str(coords[k]))
 
     
-    for k in range(len(coords)):
-	
-	 #are coords in range
-    	for i in range(len(lat_raw)):
-      	   for j in range(len(lat_raw[i])):
-                         
-              if ( isInRange(coords[k][LAT],lat_raw[i][j], kmTodegLat(KM_LAT_RANGE) ) and isWater(water_lst[i][j]) == False):
-                 if (isInRange(coords[k][LONG],long_raw[i][j],kmTodegLong(KM_LONG_RANGE)) ):
-
-                    MATCHING_POINTS.append(  (lat_raw[i][j],long_raw[i][j],getRawCO2Strong(file_obj)[i][j]) )
-                    print("Point " + str( (lat_raw[i][j],long_raw[i][j],getRawCO2Strong(file_obj)[i][j])) + " added.")
-                         
-           	
 
 #find raw coords and files
 def findRawFilesByRawCoords(start_dir,coords):
@@ -213,8 +240,7 @@ def findRawFilesByRawCoords(start_dir,coords):
       if(f.name[-len(EXT):] == EXT):
          f_h5.append(h5py.File(f.path,"r"))
 	 
-   num_threads = int(input("Enter the number of threads to use"))
-   storeMatchingPoints(f_h5,coords,num_threads)
+   storeMatchingPoints(f_h5,coords)
    return MATCHING_POINTS
 	    
 
@@ -382,14 +408,29 @@ def isInBound(n1,n2,pt):
         
 
 #avg data in list
-def averageCO2(lst):
+def averageCO2(data_file):
     
+    S_M = data_file["SoundingMeasurements"]
+    co2_readings = S_M["radiance_strong_co2"]
+
+    lst = []
+    tmp_lst = []
+    for i in range(len(co2_readings)):
+        tmp_lst.append([avg_lst(co2_readings[i][0])])
+        for j in range(1,len(co2_readings[i])):
+            tmp_lst[i].append(avg_lst(co2_readings[i][j]))
+            
+    return tmp_lst
+    
+def avg_lst(lst):
+    
+
     avg = 0.0
     for i in range(len(lst)):
         avg = avg + lst[i]
     return avg/len(lst)
 
-
+    
 #raw co2 to xco2 (air molar fraction)
 def rawCO2ToXCO2(lst):
     pass
