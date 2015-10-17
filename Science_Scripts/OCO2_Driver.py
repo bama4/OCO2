@@ -4,8 +4,9 @@ import VFS
 import sys
 import OCO2_L1B
 import OCO2_LITE
+import OCO2_L2
 
-COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B).","Run Automatic Script Given file, get all Coords. within a certain point(OCO2_LITE)"]
+COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B).","Run Automatic Script Given file, get all Coords. within a certain point(OCO2_LITE)","Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L2)"]
 
 PATH = ""
 SYS_NAME = "2014 - 2015 HDF5 FILES"
@@ -74,10 +75,12 @@ def getRoot():
         if(ans == EXIT):
             sys.exit(0)
             
-        if(ans == "DEFAULT_PATH_OCO2L1B"):
+        if(ans == "OCO2L1B"):
             ans = OCO2_L1B.DEFAULT_PATH
-        elif(ans == "DEFAULT_PATH_OCO2LITE"):
+        elif(ans == "OCO2LITE"):
             ans = OCO2_LITE.DEFAULT_PATH
+        elif(ans == "OCO2L2"):
+            ans = OCO2_L2.DEFAULT_PATH
         try:
             
             os.chdir(ans)
@@ -96,9 +99,12 @@ def getRoot():
 #get the specified directory
 def getDirectory():
     global FILE_SYS
-    name = str(input("Enter name of Directory"))
+    name = str(input("Enter name of Directory or type '_ROOT_' for ROOT dir as current dir"))
     
-    return FILE_SYS.findDir(name.strip())
+    if(name == "_ROOT_"):
+        return FILE_SYS.root
+    else:
+        return FILE_SYS.findDir(name.strip())
 
 #get the specified file
 def getFile():
@@ -142,18 +148,22 @@ def save(obj):
 #file is in format NAME  LAT  LONG  TIMEOFFSET
 #returns list of tuples of (NAME,LAT,LONG)
 def getCoordsFromFile(name):
-    f = open(name, 'r')
+
+   try:
+       f = open(name, 'r')
     
-    coords = []
-    lst = f.read().split("\n")
-    for i in range(len(lst)):
-        sublst = lst[i].split(" ")
-        print(sublst)
+       coords = []
+       lst = f.read().split("\n")
+       for i in range(len(lst)):
+           sublst = lst[i].split(" ")
+           print(sublst)
 
-        if(len(sublst)>=3):
-            coords.append((sublst[0],float(sublst[1]),float(sublst[2])))
+           if(len(sublst)>=3):
+               coords.append((sublst[0],float(sublst[1]),float(sublst[2])))
+   except:
+      print("GETCOORDSFROMFILE ERROR")
 
-    return coords
+   return coords
 
 #save names in buffer to text file
 def saveToTextFile(name,lst):    
@@ -225,11 +235,11 @@ def procCommands(c):
         if c == 1: #set current directory
             
             checkFileSys()
-            dir = getDirectory()
-            if(dir == None):
+            dir_ = getDirectory()
+            if(dir_ == None):
                 print("Directory does not exist")
             else:
-                CURR_DIR = dir
+                CURR_DIR = dir_
                 
             return
             
@@ -439,6 +449,23 @@ def procCommands(c):
 
             except:
                 print("Invalid")
+                return
+
+        if c == 17:
+            #try:
+            n = input("Enter the file name containing the coords")
+            coords = getCoordsFromFile(n)
+            dat = OCO2_L2.findRawFilesByRawCoords(CURR_DIR,coords)
+
+                #write info to file
+            n = input("Enter the file to write to")
+            saveListTupleToFile(n,dat)
+
+            #except:
+                #print("Invalid at 17")
+            return
+
+
 
         if c == EXIT:
             print("BYE")

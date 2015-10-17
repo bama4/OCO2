@@ -7,12 +7,15 @@
 import os
 import h5py
 import OCO2_L1B
+import OCO2_LITE
+import OCO2_L2
 import math 
 
 CURR_DIR_ = 0
 SUB_DIR = 1
 FILES = 2
 EXT = ".h5"
+EXT2 = ".nc4"
 
 #Extra class
 class Node:
@@ -50,8 +53,8 @@ class Directory:
         print(" NAME: " + self.name + " PATH: " + self.path)
         print("DIRECTORIES")
         
-        for dir in self.subdirs:
-            print(dir.name)
+        for dir_ in self.subdirs:
+            print(dir_.name)
         
         print("\nFILES")
         
@@ -66,10 +69,10 @@ class Directory:
     #Returns a directory based on the given name        
     def getSubDir(self,name):
         
-        for dir in self.subdirs:
+        for dir_ in self.subdirs:
             print(self.name)
-            if(dir.name == name):
-                return dir
+            if(dir_.name == name):
+                return dir_
             else:
                 continue
         return None  
@@ -82,14 +85,14 @@ class Directory:
     #Or sub directories
     def getFile(self,name):
         
-        for file in self.files:
-            if(file.name == name):
-                return file
+        for file_ in self.files:
+            if(file_.name == name):
+                return file_
         return None
     
     #Adds a directory object to list of subdirectories
-    def addDir(self,dir):
-        self.subdirs.append(dir)
+    def addDir(self,dir_):
+        self.subdirs.append(dir_)
         
     #Adds a File object to list of files
     def addFile(self,f):
@@ -99,6 +102,12 @@ class Directory:
     def returnAllFiles(self):
         
         files = []
+
+        #get this directorys files
+        for fi in self.getFiles():
+            files.append(fi)
+
+        #get all directories of root file
         for d in self.subdirs:
             for f in d.getFiles():
                 files.append(f)
@@ -128,17 +137,17 @@ class VFS:
         
         d = None
           
-        for dir in dirs:
-            if(dir.name == name):
+        for dir_ in dirs:
+            if(dir_.name == name):
                 #print("FOUND")
-                return dir
+                return dir_
                 
-            d = dir.getSubDir(name)
+            d = dir_.getSubDir(name)
             if(d != None):
                 print("FOUND")
                 break;
             else:
-                return self.findD(name, dir.subdirs)
+                return self.findD(name, dir_.subdirs)
         
         return d
     
@@ -166,22 +175,22 @@ class VFS:
             #set up file info
             #only collect .h5 files
             for f in curr[FILES]:
-                if(f[-len(EXT):] == EXT):
+                if(f[-len(EXT):] == EXT or f[-len(EXT2):] == EXT2):
                     root.files.append(File(f,curr[CURR_DIR_]+"//"+f))
                 
             #set up sub-directories
             
             for i in curr[SUB_DIR]:
                 
-                dir = Directory(i , curr[CURR_DIR_]+"//"+i, [] , [] )
-                root.subdirs.append(dir)
+                dir_ = Directory(i , curr[CURR_DIR_]+"//"+i, [] , [] )
+                root.subdirs.append(dir_)
                 
     #             print("CURRENT PATH: " + path)
     #             print("CURRENT DIRECTORY: " + root.name)
     #             
     #             print("PATH: " + dir.path)
     #             print("DIRECTORY: " + dir.name)
-                self.addDirs(dir, dir.path)
+                self.addDirs(dir_, dir_.path)
             break
             
     #Add directories and files to VFS recursively  
@@ -193,3 +202,4 @@ class VFS:
         
         #FILE_SYS.print_VFS()
         self.addDirs(root_d, root_path)
+        
