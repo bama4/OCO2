@@ -344,9 +344,18 @@ def procCommands(c):
                 FILE_COORDS = 2
                 FILE_CO2_LEVELS = 3
 
+                nam = input("ENTER THE SOURCE (OCO2_L2 , OCO2_LITE, OCO2_L1B): ")
                 #find the files with the correct coords (directory , longitude, latitude, optional date)
-                files = OCO2_L1B.findFilesByCoords(CURR_DIR, long_, lat_,date)
                 
+                if(nam == "OCO2_L2"):
+                    files = OCO2_L2.findFilesByCoords(CURR_DIR, long_, lat_,date)
+               
+                elif(nam == "OCO2_L1B"):
+                    files = OCO2_L1B.findFilesByCoords(CURR_DIR, long_, lat_,date)
+                
+                elif(nam == "OCO2_LITE"):
+                    files = OCO2_LITE.findFilesByCoords(CURR_DIR, long_, lat_,date)
+                    
                 #print file names
                 print("The following files will be placed in the buffer: ")
                 

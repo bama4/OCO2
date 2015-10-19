@@ -1,12 +1,13 @@
 import threading
 import os
 import sys
-import h5py
+import netCDF4
 import math 
 
 
 #default root path
-DEFAULT_PATH = "//home//bama4//OCO2_L2_LITE_DATA//Data"
+#DEFAULT_PATH = "//home//bama4//OCO2_L2_LITE_DATA//Data"
+DEFAULT_PATH = "C://cygwin//home//Bama4//OCO2_DATA//OCO2_LITE_DATA"
 EXT = ".nc4"
 
 #constants for converting deg to km 
@@ -61,23 +62,24 @@ def isWater(w):
 
 #average latitude from file
 def getLatAvg(data_file):
-    S_M = data_file["SoundingGeometry"]
-    LATS = S_M["sounding_latitude"]
+    
+    LATS = data_file.variables["latitude"]
 
     avg_lat = []
     counter = 0
-    for i in range(len(LATS)):
-        avg = 0.0
-        
-        for j in range(len(LATS[i])):
+    
+    avg = 0.0
+    
+    for j in range(len(LATS)):
 
-            #make sure longitude is valid
-            if(isValidLat(LATS[i][j])):
-                avg = avg + LATS[i][j]
-                counter = counter + 1        
-        if(counter != 0):
-            avg_lat.append(avg/counter)
-            counter = 0
+        #make sure longitude is valid
+        if(isValidLat(LATS[i][j])):
+            avg = avg + LATS[i][j]
+            counter = counter + 1  
+                  
+    if(counter != 0):
+        avg_lat.append(avg/counter)
+        counter = 0
     return avg_lat
 
 
@@ -92,52 +94,46 @@ def isValidLong(lon):
 #average longitude from file
 def getLongAvg(data_file):
 
-    S_M = data_file["SoundingGeometry"]
-    LONGS = S_M["sounding_longitude"]
+    LONGS = data_file.variables["longitude"]
 
     avg_long = []
     counter = 0
-    for i in range(len(LONGS)):
-        avg = 0.0
+    
+    avg = 0.0
+    
+    for j in range(len(LONGS)):
 
-        for j in range(len(LONGS[i])):
-            #make sure latitude is valid
-            if(isValidLong(LONGS[i][j])):
-                avg = avg + LONGS[i][j]
-                counter = counter + 1
-        if(counter !=0):        
-            avg_long.append(avg/counter)
-            counter = 0
+        #make sure longitude is valid
+        if(isValidLat(LONGS[j])):
+            avg = avg + LONGS[j]
+            counter = counter + 1  
+                  
+    if(counter != 0):
+        avg_long.append(avg/counter)
+        counter = 0
     return avg_long
 
 
 #get strong CO2
 def getRawCO2(data_file):
     
-    co2_readings = data_file["xco2"]
+    co2_readings = data_file.variables["xco2"]
     
     return co2_readings
 
-#get weak CO2
-def getRawCO2Weak(data_file):
-    
-    S_M = data_file["SoundingMeasurements"]
-    co2_readings = S_M["radiance_weak_co2"]
-    return cos_readings
-
 #obtain raw latitudes
 def getRawLat(data_file):
-    LATS = data_file["latitude"]
+    LATS = data_file.variables["latitude"]
     return LATS
 
 #obtain water indicator array
 def getWaterArray(data_file):
-    WAT = data_file["land_water_indicator"]
+    WAT = data_file.groups["Sounding"].variables["land_water_indicator"]
     return WAT
 
 #obtain raw longitudes
 def getRawLong(data_file):
-    LONGS = data_file["longitude"]
+    LONGS = data_file.variables["longitude"]
     return LONGS
 
 
@@ -170,8 +166,7 @@ def storeMatchingPoints(files,coords):
       try:
 
           lats = getRawLat(f)
-          print("FGFG")
-          print(str(lats))
+
           longs = getRawLong(f)
           water = getWaterArray(f)
 
@@ -229,16 +224,14 @@ def getMatchCoord(file_obj,coords, lat_raw, long_raw, water_lst):
 def findRawFilesByRawCoords(start_dir,coords):
     
    files = start_dir.returnAllFiles()
-   f_h5 = []
+   f_nc4 = []
 	
 #get .h5 files
    for f in files:
       if(f.name[-len(EXT):] == EXT):
-         f_h5.append(h5py.File(f.path,"r"))
-	 print(f.name)
-   storeMatchingPoints(f_h5,coords)
+         f_nc4.append(netCDF4.Dataset(f.path,"r"))
+   storeMatchingPoints(f_nc4,coords)
    return MATCHING_POINTS
-	    
 
 #find specific files by their coordinates (with optional specified date
 #Return file names, file objects, and the coordinates that are within the 
@@ -253,117 +246,65 @@ def findFilesByCoords(start_dir,long_,lat_, date):
     bound_lat_=0
     bound_long_=0
 
-    avg_ = input("Average the Data?")
+    file_obj = None
+    
     range_ = input("Use default range method?")
-    co2_ = input("Include strong CO2 's' or weak CO2 'w'?")
+    
 
     #prompt for bounds
     if(range_ != "y"):
         bound_lat_= input("Enter latitude bound: ")
         bound_long_ = input("Enter longitude bound: ")
-
+    
+    
 
 
     for f in start_dir.files:
         
         isInFile = False
-        if(f.name[-len(EXT):] == EXT and isFileDateMatch(f.name,date)):
-            file_obj = h5py.File(f.path,"r")
+        
+        try:
+            file_obj = netCDF4.Dataset(f.path,"r")
+        except:
+            print("FILE: " + str(f.name) + " had an error")
+            continue
+
+        lat_raw = getRawLat(file_obj)
+        long_raw = getRawLong(file_obj)
+        print("Finished obtaining raw longitude and latitude for file " + str(f.name))
+        #are coords in range
+
+        if(range_ == "y"):#default range method
+            for i in range(len(lat_raw)):
                 
-            #Ask if data should be averaged
-            if(avg_ == "y"):
-                lat_avg = getLatAvg(file_obj) 
-                long_avg = getLongAvg(file_obj)
-
-            #prompt to print averages
-            #prompt_print("Would you like to print the latitude averages for file " + str(f.name)+ str("?"),lat_range)
-            #prompt_print("Would you like to print the longitude averages for file " + str(f.name)+ str("?"),long_range)
-            
-                print("Finished calculating averages for file " + str(f.name))
-                isInFile = False
-
-            #are coords in range
-
-                if(range_ == "y"): #default range method
-                    for i in range(len(lat_avg)):
-                        if ( isInRange(lat_,lat_avg[i],DEG_LAT_RANGE) ):
+                if ( isInRange(lat_,lat_raw[i],DEG_LAT_RANGE) ):
+                    if (isInRange(long_,long_raw[i],DEG_LONG_RANGE)):
+                        coords.append(  (lat_raw[i],long_raw[i]) )
                         
-                            if (isInRange(long_,long_avg[i],DEG_LONG_RANGE)):
-                                coords.append(  (lat_avg[i],long_avg[i]) )
+                        #CO2 Levels
+                        type_co2.append( getRawCO2(file_obj)[i] )
 
-
-                                
-                                if(isInFile == False):
-                                    fil_names.append(f.name)
-                                    fils.append(file_obj)
-                                    isInFile = True
-
-                else: #custom range method
-                    for i in range(len(lat_range)):
-                        if ( isInBound(lat_,bound_lat_,lat_avg[i]) ):
-
-                            if (isInRange(long_,bound_long_,long_avg[i])):
-                                coords.append(  (lat_avg[i],long_avg[i]) )
-
-                                if(isInFile == False):
-                                    fil_names.append(f.name)
-                                    fils.append(file_obj)
-                                    isInFile = True
-
-
-            #get coords using raw data
-            else:
-
-                lat_raw = getRawLat(file_obj)
-                long_raw = getRawLong(file_obj)
-                print("Finished obtaining raw longitude and latitude for file " + str(f.name))
-    
-                #are coords in range
-
-                if(range_ == "y"):#default range method
-                    for i in range(len(lat_raw)):
-                        for j in range(len(lat_raw[i])):
-                            if ( isInRange(lat_,lat_raw[i][j],DEG_LAT_RANGE) ):
-                                if (isInRange(long_,long_raw[i][j],DEG_LONG_RANGE)):
-                                    coords.append(  (lat_raw[i][j],long_raw[i][j]) )
-
-
-                                                                    #CO2 Levels
-                                    if(co2_ == "s"): #strong
-                                        type_co2.append( averageCO2(getRawCO2Strong(file_obj)[i][j]) )
-
-                                    if(co2_ == "w"): #weak
-                                        type_co2.append( averageCO2(getRawCO2Weak(file_obj)[i][j]) )
-
-
+                        if(isInFile == False):
+                            fil_names.append(f.name)
+                            fils.append(file_obj)
+                            isInFile = True
+        else: #custom range method
             
-                                    if(isInFile == False):
-                                        fil_names.append(f.name)
-                                        fils.append(file_obj)
-                                        isInFile = True
-                else: #custom range method
-                    
-                     for i in range(len(lat_raw)):
-                        for j in range(len(lat_raw[i])):
-                            if ( isInBound(lat_,bound_lat_,lat_raw[i][j]) ):
-                                if (isInBound(long_,bound_long_,long_raw[i][j])):
-                                    coords.append(  (lat_raw[i][j],long_raw[i][j]) )
+                for i in range(len(lat_raw)):
+                    if ( isInBound(lat_,bound_lat_,lat_raw[i]) ):
+                        if (isInBound(long_,bound_long_,long_raw[i])):
+                            coords.append(  (lat_raw[i],long_raw[i]) )
 
 
-                                                                      #CO2 Levels
-                                    if(co2_ == "s"): #strong
-                                        type_co2.append( averageCO2(getRawCO2Strong(file_obj)[i][j]) )
+                            #CO2 Levels
+                            type_co2.append( getRawCO2(file_obj)[i] )
 
-                                    if(co2_ == "w"): #weak
-                                        type_co2.append( averageCO2(getRawCO2Weak(file_obj)[i][j]))
+                            if(isInFile == False):
+                                fil_names.append(f.name)
+                                fils.append(file_obj)
+                                isInFile = True
 
-
-                                    if(isInFile == False):
-                                        fil_names.append(f.name)
-                                        fils.append(file_obj)
-                                        isInFile = True
-
-
+    
 
     return (fils, fil_names, coords, type_co2)
 
@@ -402,21 +343,6 @@ def isInBound(n1,n2,pt):
         return True
     return False
         
-
-#avg data in list
-def averageCO2(data_file):
-    
-    S_M = data_file["SoundingMeasurements"]
-    co2_readings = S_M["radiance_strong_co2"]
-
-    lst = []
-    tmp_lst = []
-    for i in range(len(co2_readings)):
-        tmp_lst.append([avg_lst(co2_readings[i][0])])
-        for j in range(1,len(co2_readings[i])):
-            tmp_lst[i].append(avg_lst(co2_readings[i][j]))
-            
-    return tmp_lst
     
 def avg_lst(lst):
     
