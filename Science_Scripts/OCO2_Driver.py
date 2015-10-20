@@ -171,7 +171,7 @@ def saveToTextFile(name,lst):
 
     f = open(name, 'w')
     for i in range(len(lst)):
-        f.write(str(lst[i]))
+        f.write(str(lst[i])+ str("\n"))
     f.close()
 
 #converts coordinates to hamstermap format
@@ -180,7 +180,8 @@ def coordsToHamstermapFormat(coords,other):
     string_list = []
     LAT = 0
     LONG = 1
-    CO2 = 2
+    CO2 = 0
+    TIME = 1
  
     default_leg = input("Use default HAM_LEGEND for legend and default Number for Number? ")
     
@@ -191,7 +192,7 @@ def coordsToHamstermapFormat(coords,other):
     else: #use custom legend
         leg = input("Enter legend to use: ")
         for i in range(len(coords)):
-            string_list.append(str(coords[i][LAT])+str("\t")+ str(coords[i][LONG]) + str("\t") +str(HAM_MARKER) + str("\t") + str(HAM_COLOR) + str("\t") + str(other[i]) + str("\t") + str(leg)+ str("\n"))
+            string_list.append(str(coords[i][LAT])+str("\t")+ str(coords[i][LONG]) + str("\t") +str(HAM_MARKER) + str("\t") + str(HAM_COLOR) + str("\t") + str(other[CO2][i]) + str("\t") + str(other[TIME][i]) + str(leg)+ str("\n"))
 
     return string_list
 
@@ -343,6 +344,7 @@ def procCommands(c):
                 FILE_NAME = 1
                 FILE_COORDS = 2
                 FILE_CO2_LEVELS = 3
+                FILE_TIMES = 4
 
                 nam = input("ENTER THE SOURCE (OCO2_L2 , OCO2_LITE, OCO2_L1B): ")
                 #find the files with the correct coords (directory , longitude, latitude, optional date)
@@ -362,7 +364,7 @@ def procCommands(c):
                 for i in range(len(files[FILE_NAME])):
                     print(files[FILE_NAME][i])
                     save(files[FILE_OBJS][i])
-                save(files[FILE_COORDS])
+                #save(files[FILE_COORDS])
 
                 #print points that fall in the coordinate range
                 print("Number of points that fall in the region: " + str(len(files[FILE_COORDS])) )
@@ -371,16 +373,16 @@ def procCommands(c):
                 ans = input("Write coords to file?")
                 if(ans == "y"):
                     nam = input("Enter name of file: ")
-                    saveCoordsToTextFile(nam, coordsToHamstermapFormat(files[FILE_COORDS] ,files[FILE_CO2_LEVELS]))
+                    saveCoordsToTextFile(nam,  coordsToHamstermapFormat(files[FILE_COORDS] ,[  files[FILE_CO2_LEVELS],files[FILE_TIMES] ] )  )
         
                 else:
                     print("Not writing coords to file....")
 
                 #write file names to file?
-                ans = imput("Write to file names that fall into the given bounding?")
+                ans = input("Write to file names that fall into the given bounding?")
                 if(ans == "y"):
                     nam = input("Enter name of file: ")
-                    saveToTextFile(files[FILE_NAME])
+                    saveToTextFile(nam,files[FILE_NAME])
                 else:
                     print("Not writing file names to file...")
 

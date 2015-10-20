@@ -136,6 +136,13 @@ def getRawLong(data_file):
     LONGS = data_file.variables["longitude"]
     return LONGS
 
+#time is in seconds since 01-01-1993
+def getTimes(data_file):
+    TIME = data_file.variables["date"]
+    return TIME
+
+def convertSecToDays(secs):
+    return secs/(86400.0000)
 
 #ask if want to print obj (list,string, etc)
 def prompt_print(msg,obj):
@@ -242,7 +249,8 @@ def findFilesByCoords(start_dir,long_,lat_, date):
     fil_names = []
     coords = []
     type_co2 = []
-
+    times = []
+    
     bound_lat_=0
     bound_long_=0
 
@@ -269,6 +277,7 @@ def findFilesByCoords(start_dir,long_,lat_, date):
             print("FILE: " + str(f.name) + " had an error")
             continue
 
+       
         lat_raw = getRawLat(file_obj)
         long_raw = getRawLong(file_obj)
         print("Finished obtaining raw longitude and latitude for file " + str(f.name))
@@ -283,11 +292,15 @@ def findFilesByCoords(start_dir,long_,lat_, date):
                         
                         #CO2 Levels
                         type_co2.append( getRawCO2(file_obj)[i] )
-
+                        times.append( getTimes(file_obj)[i])
+                        print("POINT ADDED.")
+                         
+                         
                         if(isInFile == False):
                             fil_names.append(f.name)
                             fils.append(file_obj)
                             isInFile = True
+                            
         else: #custom range method
             
                 for i in range(len(lat_raw)):
@@ -298,15 +311,18 @@ def findFilesByCoords(start_dir,long_,lat_, date):
 
                             #CO2 Levels
                             type_co2.append( getRawCO2(file_obj)[i] )
-
+                            times.append( getTimes(file_obj)[i])
+                            print("POINT ADDED.")
+                            
                             if(isInFile == False):
                                 fil_names.append(f.name)
                                 fils.append(file_obj)
                                 isInFile = True
 
     
-
-    return (fils, fil_names, coords, type_co2)
+  
+    return (fils, fil_names, coords, type_co2, times)
+   
 
 #Check if the two points/numbers are within the given range (num2 to num2-range_)
 #Where num2 are the raw points
