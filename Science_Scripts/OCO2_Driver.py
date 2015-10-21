@@ -6,10 +6,10 @@ import OCO2_L1B
 import OCO2_LITE
 import OCO2_L2
 
-COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B).","Run Automatic Script Given file, get all Coords. within a certain point(OCO2_LITE)","Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L2)"]
+COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B , OCO2_L2 , OCO2_LITE)."]
 
 PATH = ""
-SYS_NAME = "2014 - 2015 HDF5 FILES"
+SYS_NAME = "OCO2_DATA_FILES"
 FILE_SYS = VFS.VFS(SYS_NAME,None,None)
 CURR_DIR = None
 CURR_FILE = None
@@ -436,7 +436,19 @@ def procCommands(c):
 
                 n = input("Enter the file name containing the coords")
                 coords = getCoordsFromFile(n)
-                dat = OCO2_L1B.findRawFilesByRawCoords(CURR_DIR,coords)
+                
+                nam = input("ENTER THE SOURCE (OCO2_L2 , OCO2_LITE, OCO2_L1B): ")
+                #find the files with the correct coords (directory , longitude, latitude, optional date)
+                
+                if(nam == "OCO2_L2"):
+                    files = OCO2_L2.findRawFilesByRawCoords(CURR_DIR,coords)
+                elif(nam == "OCO2_L1B"):
+                    files = OCO2_L1B.findRawFilesByRawCoords(CURR_DIR,coords)
+                
+                elif(nam == "OCO2_LITE"):
+                    files = OCO2_LITE.findRawFilesByRawCoords(CURR_DIR,coords)
+                
+               
 
                 #write info to file
                 n = input("Enter the file to write to")
@@ -445,38 +457,6 @@ def procCommands(c):
             except KeyError:
                     print("Invalid File")
                     return
-
-
-        if c == 16:
-            
-            try:
-                n = input("Enter the file name containing the coords")
-                coords = getCoordsFromFile(n)
-                dat = OCO2_LITE.findRawFilesByRawCoords(CURR_DIR,coords)
-
-                #write info to file
-                n = input("Enter the file to write to")
-                saveListTupleToFile(n,dat)
-
-            except:
-                print("Invalid")
-                return
-
-        if c == 17:
-            #try:
-            n = input("Enter the file name containing the coords")
-            coords = getCoordsFromFile(n)
-            dat = OCO2_L2.findRawFilesByRawCoords(CURR_DIR,coords)
-
-                #write info to file
-            n = input("Enter the file to write to")
-            saveListTupleToFile(n,dat)
-
-            #except:
-                #print("Invalid at 17")
-            return
-
-
 
         if c == EXIT:
             print("BYE")
