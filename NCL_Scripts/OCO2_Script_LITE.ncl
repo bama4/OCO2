@@ -17,7 +17,7 @@ end
 function get_file_names()
 local names,tmp_str
 begin
-	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/OCO2_LITE_DATA/ -name 'oco2_LtCO2_1507*.nc4' ") ; July 
+	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/OCO2_LITE_DATA/ -name '*.nc4' ") ; July 
 	return tmp_str
 end
 
@@ -36,7 +36,7 @@ begin
 	;--data = abs(data - avg_data)*SCALE 
 	;--scale values
 	
-	data = data*SCALE
+	;--data = data*SCALE
 
 	delete(files_0)
 	delete(avg_data)

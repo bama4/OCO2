@@ -29,23 +29,24 @@ begin
   ;--res@mpMaxLonF = max(lon) + 5
   ;--res@tiMainString = "Locations of stations"
 
-  map = gsn_csm_map(wks,res)                ; Create the map plot, don't draw
+  ;--map = gsn_csm_map(wks,res)               
+  ; Create the map plot, don't draw
 
   mkres               = True
-  mkres@gsMarkerIndex = 2
-  mkres@gsMarkerColor = "Brown"
+  ;--mkres@gsMarkerIndex = 2
+  ;--mkres@gsMarkerColor = "Brown"
 
-  gsn_polymarker(wks,map,lon,lat,mkres)
+  ;--gsn_polymarker(wks,map,lon,lat,mkres)
 
-  frame(wks)
+  ;--frame(wks)
 
 ;
 ; Zoom in even more on the map.
 ;
-  res@mpMaxLatF =   60.
-  res@mpMaxLonF =  -65.
-  res@mpMinLatF =   22.
-  res@mpMinLonF = -125.
+  res@mpMaxLatF =   72.4
+  res@mpMaxLonF =  -153.0
+  res@mpMinLatF =   69.0
+  res@mpMinLonF = -163.0
 
   map = gsn_csm_map(wks,res)                ; Create the map plot, don't draw
 
