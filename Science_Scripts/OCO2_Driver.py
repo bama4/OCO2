@@ -5,8 +5,9 @@ import sys
 import OCO2_L1B
 import OCO2_LITE
 import OCO2_L2
+import GREY_DATA_NOV
 
-COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B , OCO2_L2 , OCO2_LITE).","Get CO2 Flux (GREY, NOV)"]
+COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B , OCO2_L2 , OCO2_LITE)."]
 
 PATH = ""
 SYS_NAME = "OCO2_DATA_FILES"
@@ -359,6 +360,8 @@ def procCommands(c):
                 
                 elif(nam == "OCO2_LITE"):
                     files = OCO2_LITE.findFilesByCoords(CURR_DIR, long_, lat_,date)
+                elif(nam == "GREYDATANOV"):
+                    files = OCO2_LITE.findFilesByCoords(CURR_DIR, long_,lat_,date)
                     
                 #print file names
                 print("The following files will be placed in the buffer: ")
@@ -446,23 +449,11 @@ def procCommands(c):
                     files = OCO2_L2.findRawFilesByRawCoords(CURR_DIR,coords)
                 elif(nam == "OCO2_L1B"):
                     files = OCO2_L1B.findRawFilesByRawCoords(CURR_DIR,coords)
-                
                 elif(nam == "OCO2_LITE"):
                     files = OCO2_LITE.findRawFilesByRawCoords(CURR_DIR,coords)
+                elif(nam == "GREYDATANOV"):
+                    files = GREY_DATA_NOV.findRawFilesByRawCoords(CURR_DIR, coords)
                 
-        if c == 16:
-            
-            try:
-                
-               
-
-                #write info to file
-                n = input("Enter the file to write to")
-                saveListTupleToFile(n,dat)
-
-            except KeyError:
-                    print("Invalid File")
-                    return
 
         if c == EXIT:
             print("BYE")
