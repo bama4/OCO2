@@ -6,7 +6,7 @@ import OCO2_L1B
 import OCO2_LITE
 import OCO2_L2
 
-COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B , OCO2_L2 , OCO2_LITE)."]
+COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B , OCO2_L2 , OCO2_LITE).","Get CO2 Flux (GREY, NOV)"]
 
 PATH = ""
 SYS_NAME = "OCO2_DATA_FILES"
@@ -81,6 +81,8 @@ def getRoot():
             ans = OCO2_LITE.DEFAULT_PATH
         elif(ans == "OCO2L2"):
             ans = OCO2_L2.DEFAULT_PATH
+        elif(ans == "GREYDATANOV"):
+            ans = GREY_DATA_NOV.DEFAULT_PATH
         try:
             
             os.chdir(ans)
@@ -447,6 +449,10 @@ def procCommands(c):
                 
                 elif(nam == "OCO2_LITE"):
                     files = OCO2_LITE.findRawFilesByRawCoords(CURR_DIR,coords)
+                
+        if c == 16:
+            
+            try:
                 
                
 

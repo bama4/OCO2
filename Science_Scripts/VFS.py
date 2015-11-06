@@ -16,6 +16,7 @@ SUB_DIR = 1
 FILES = 2
 EXT = ".h5"
 EXT2 = ".nc4"
+EXT3 = ".nc"
 
 #Extra class
 class Node:
@@ -175,7 +176,7 @@ class VFS:
             #set up file info
             #only collect .h5 files
             for f in curr[FILES]:
-                if(f[-len(EXT):] == EXT or f[-len(EXT2):] == EXT2):
+                if(f[-len(EXT):] == EXT or f[-len(EXT2):] == EXT2 or f[-len(EXT3):] == EXT3):
                     root.files.append(File(f,curr[CURR_DIR_]+"//"+f))
                 
             #set up sub-directories
