@@ -1,5 +1,6 @@
 import os 
 import sys
+import netCDF4
 
 DEFAULT_PATH = "C://Users//Bama4//Downloads//DATA//GREY_DATA//DailyOutput_4Pierre"
 EXT = ".nc"
@@ -176,12 +177,12 @@ def searchArray(lat_raw,long_raw,coords,file_obj):
 def getMatchCoord(file_obj,coords, lat_raw, long_raw):
  #are coords in range
     for i in range(len(lat_raw)):
-        if(True):#avoiding having to indent everything again
-            if ( isInRange(coords[LAT],lat_raw[i], kmTodegLat(KM_LAT_RANGE) )):
-                if (isInRange(coords[LONG],long_raw[i],kmTodegLong(KM_LONG_RANGE)) ):
-                    co2 = getRawCO2Flux(file_obj)[i]
-                    MATCHING_POINTS.append(  (lat_raw[i],long_raw[i],co2) )
-                    print("Point " + str( (lat_raw[i],long_raw[i],co2) ) + " added.")
+        for j in range(len(lat_raw[i])):#avoiding having to indent everything again
+            if ( isInRange(coords[LAT],lat_raw[i][j], kmTodegLat(KM_LAT_RANGE) )):
+                if (isInRange(coords[LONG],long_raw[i][j],kmTodegLong(KM_LONG_RANGE)) ):
+                    co2 = getRawCO2Flux(file_obj)[i][j]
+                    MATCHING_POINTS.append(  (lat_raw[i][j],long_raw[i][j],co2) )
+                    print("Point " + str( (lat_raw[i][j],long_raw[i][j],co2) ) + " added.")
             #print("On Current Coord: " + str(coords[k]))
 
     
@@ -245,39 +246,40 @@ def findFilesByCoords(start_dir,long_,lat_, date):
 
         if(range_ == "y"):#default range method
             for i in range(len(lat_raw)):
-                
-                if ( isInRange(lat_,lat_raw[i],DEG_LAT_RANGE) ):
-                    if (isInRange(long_,long_raw[i],DEG_LONG_RANGE)):
-                        coords.append(  (lat_raw[i],long_raw[i]) )
-                        
-                        #CO2 Levels
-                        type_co2.append( getRawCO2Flux(file_obj)[i] )
-                        times.append( getTimes(file_obj)[i])
-                        print("POINT ADDED.")
-                         
-                         
-                        if(isInFile == False):
-                            fil_names.append(f.name)
-                            fils.append(file_obj)
-                            isInFile = True
+                for j in range(len(lat_raw[i])):
+                    if ( isInRange(lat_,lat_raw[i][j],DEG_LAT_RANGE) ):
+                        if (isInRange(long_,long_raw[i][j],DEG_LONG_RANGE)):
+                            coords.append(  (lat_raw[i][j],long_raw[i][j]) )
                             
-        else: #custom range method
-            
-                for i in range(len(lat_raw)):
-                    if ( isInBound(lat_,bound_lat_,lat_raw[i]) ):
-                        if (isInBound(long_,bound_long_,long_raw[i])):
-                            coords.append(  (lat_raw[i],long_raw[i]) )
-
-
                             #CO2 Levels
-                            type_co2.append( getRawCO2Flux(file_obj)[i] )
-                            times.append( getTimes(file_obj)[i])
+                            type_co2.append( getRawCO2Flux(file_obj)[i][j] )
+                            times.append( getTimes(file_obj)[i][j])
                             print("POINT ADDED.")
+                            
                             
                             if(isInFile == False):
                                 fil_names.append(f.name)
                                 fils.append(file_obj)
                                 isInFile = True
+                            
+        else: #custom range method
+            
+                for i in range(len(lat_raw)):
+                    for j in range(len(lat_raw[i])):
+                        if ( isInBound(lat_,bound_lat_,lat_raw[i][j]) ):
+                            if (isInBound(long_,bound_long_,long_raw[i][j])):
+                                coords.append(  (lat_raw[i],long_raw[i][j]) )
+    
+    
+                                #CO2 Levels
+                                type_co2.append( getRawCO2Flux(file_obj)[i][j] )
+                                times.append( getTimes(file_obj)[i][j])
+                                print("POINT ADDED.")
+                                
+                                if(isInFile == False):
+                                    fil_names.append(f.name)
+                                    fils.append(file_obj)
+                                    isInFile = True
 
     
   

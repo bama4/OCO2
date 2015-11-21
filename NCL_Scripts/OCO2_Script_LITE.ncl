@@ -17,7 +17,7 @@ end
 function get_file_names()
 local names,tmp_str
 begin
-	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/OCO2_LITE_DATA/ -name '*.nc4' ") ; July 
+	tmp_str = systemfunc("find /home/Bama4/OCO2_DATA/OCO2_FORTPECK_DATA/ -name 'oco2_*.nc4' ") ; July 
 	return tmp_str
 end
 

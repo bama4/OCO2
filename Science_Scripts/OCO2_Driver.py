@@ -349,7 +349,7 @@ def procCommands(c):
                 FILE_CO2_LEVELS = 3
                 FILE_TIMES = 4
 
-                nam = input("ENTER THE SOURCE (OCO2_L2 , OCO2_LITE, OCO2_L1B): ")
+                nam = input("ENTER THE SOURCE (OCO2_L2 , OCO2_LITE, OCO2_L1B, GREYDATANOV): ")
                 #find the files with the correct coords (directory , longitude, latitude, optional date)
                 
                 if(nam == "OCO2_L2"):
@@ -361,7 +361,7 @@ def procCommands(c):
                 elif(nam == "OCO2_LITE"):
                     files = OCO2_LITE.findFilesByCoords(CURR_DIR, long_, lat_,date)
                 elif(nam == "GREYDATANOV"):
-                    files = OCO2_LITE.findFilesByCoords(CURR_DIR, long_,lat_,date)
+                    files = GREY_DATA_NOV.findFilesByCoords(CURR_DIR, long_,lat_,date)
                     
                 #print file names
                 print("The following files will be placed in the buffer: ")
@@ -453,8 +453,10 @@ def procCommands(c):
                     files = OCO2_LITE.findRawFilesByRawCoords(CURR_DIR,coords)
                 elif(nam == "GREYDATANOV"):
                     files = GREY_DATA_NOV.findRawFilesByRawCoords(CURR_DIR, coords)
+            
+            except StandardError:
+                print("Invalid filename or source")
                 
-
         if c == EXIT:
             print("BYE")
             sys.exit(0)
@@ -466,7 +468,7 @@ def main():
         inp = getInput()
         procCommands(inp)
         print("\n\n\n")
-        #FILE_SYS.print_VFS()
+        
     print(inp)
     
     
