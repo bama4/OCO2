@@ -239,50 +239,52 @@ def findFilesByCoords(start_dir,long_,lat_, date):
             continue
 
        
-        lat_raw = getRawLat(file_obj)
-        long_raw = getRawLong(file_obj)
-        print("Finished obtaining raw longitude and latitude for file " + str(f.name))
-        #are coords in range
-
-        if(range_ == "y"):#default range method
-            for i in range(len(lat_raw)):
-                for j in range(len(lat_raw[i])):
-                    if ( isInRange(lat_,lat_raw[i][j],DEG_LAT_RANGE) ):
-                        if (isInRange(long_,long_raw[i][j],DEG_LONG_RANGE)):
-                            coords.append(  (lat_raw[i][j],long_raw[i][j]) )
-                            
-                            #CO2 Levels
-                            type_co2.append( getRawCO2Flux(file_obj)[i][j] )
-                            times.append( getTimes(file_obj)[i][j])
-                            print("POINT ADDED.")
-                            
-                            
-                            if(isInFile == False):
-                                fil_names.append(f.name)
-                                fils.append(file_obj)
-                                isInFile = True
-                            
-        else: #custom range method
-            
+        try:
+            lat_raw = getRawLat(file_obj)
+            long_raw = getRawLong(file_obj)
+            print("Finished obtaining raw longitude and latitude for file " + str(f.name))
+            #are coords in range
+    
+            if(range_ == "y"):#default range method
                 for i in range(len(lat_raw)):
                     for j in range(len(lat_raw[i])):
-                        if ( isInBound(lat_,bound_lat_,lat_raw[i][j]) ):
-                            if (isInBound(long_,bound_long_,long_raw[i][j])):
-                                coords.append(  (lat_raw[i],long_raw[i][j]) )
-    
-    
+                        if ( isInRange(lat_,lat_raw[i][j],DEG_LAT_RANGE) ):
+                            if (isInRange(long_,long_raw[i][j],DEG_LONG_RANGE)):
+                                coords.append(  (lat_raw[i][j],long_raw[i][j]) )
+                                
                                 #CO2 Levels
                                 type_co2.append( getRawCO2Flux(file_obj)[i][j] )
-                                times.append( getTimes(file_obj)[i][j])
+                            
                                 print("POINT ADDED.")
+                                
                                 
                                 if(isInFile == False):
                                     fil_names.append(f.name)
                                     fils.append(file_obj)
                                     isInFile = True
-
+                                
+            else: #custom range method
+                
+                    for i in range(len(lat_raw)):
+                        for j in range(len(lat_raw[i])):
+                            if ( isInBound(lat_,bound_lat_,lat_raw[i][j]) ):
+                                if (isInBound(long_,bound_long_,long_raw[i][j])):
+                                    coords.append(  (lat_raw[i],long_raw[i][j]) )
+        
+        
+                                    #CO2 Levels
+                                    type_co2.append( getRawCO2Flux(file_obj)[i][j] )
+                                    print("POINT ADDED.")
+                                    
+                                    if(isInFile == False):
+                                        fil_names.append(f.name)
+                                        fils.append(file_obj)
+                                        isInFile = True
     
-  
+        
+    except:
+        print("error in file " + str(f.name))
+        continue
     return (fils, fil_names, coords, type_co2, times)
    
 
