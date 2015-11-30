@@ -281,10 +281,9 @@ def findFilesByCoords(start_dir,long_,lat_, date):
                                         fils.append(file_obj)
                                         isInFile = True
     
-        
-    except:
-        print("error in file " + str(f.name))
-        continue
+        except:
+            print("error in file " + str(f.name))
+            continue
     return (fils, fil_names, coords, type_co2, times)
    
 
