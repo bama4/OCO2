@@ -28,7 +28,7 @@ begin
 	res@cnFillOn = True ;-- turn on contour fill
 	res@cnFillPalette = "rainbow"  
 	res@cnLinesOn            = False              
-	res@tiMainString = "Oklahoma City, Oklahoma (36.5 , -99.5) (34.5, -96.5)"
+	res@tiMainString = "Oklahoma City, Oklahoma (36.5 , -99.5) (34.5, -96.5) August 14 2015"
 	res@tiMainFontHeightF = 0.02
 	res@cnFillMode = "RasterFill"
 	res@cnRasterSmoothingOn = True

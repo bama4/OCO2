@@ -28,8 +28,8 @@ begin
 	res@cnFillOn = True ;-- turn on contour fill
 	res@cnFillPalette = "rainbow"  
 	res@cnLinesOn            = False              
-	res@tiMainString = "K34, Brazil (-1.6 , -59.0) (-3.6, -61.5)"
-	res@tiMainFontHeightF = 0.02
+	res@tiMainString = "K34, Brazil (-1.6 , -59.0) (-3.6, -61.5) July 29 ,2015"
+	res@tiMainFontHeightF = 0.0
 	res@cnFillMode = "RasterFill"
 	res@cnRasterSmoothingOn = True
 	res@sfXArray = list_tmp[0]

@@ -1,6 +1,6 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
-load "/home/Bama4/OCO2_Data/OCO2_Script_LITE.ncl"
+load "/home/Bama4/GREY_NOV_DATA.ncl"
 ;************************************************
 begin
 ;************************************************
