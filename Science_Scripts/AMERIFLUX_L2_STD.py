@@ -68,7 +68,7 @@ def prompt_print(msg,obj):
     else:
         return
 
-#Is date a match to file 
+#Is FID a match to file 
 def isFileFIDMatch(file_name, fid):
     if(date == ""):
         return True
