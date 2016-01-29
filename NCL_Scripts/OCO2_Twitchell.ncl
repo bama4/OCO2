@@ -5,10 +5,10 @@ load "/home/Bama4/OCO2_Data/OCO2_Script_LITE.ncl"
 begin
 
 	;-- Bounds for Region
-	lon0 = -96.5
-	lon1 = -99.5
-	lat0 = 36.5
-	lat1 = 34.5
+	lon0 = -121.6521
+	lon1 = -122.1521
+	lat0 = 38.1055
+	lat1 = 37.6055
 
 	;-- Region coordinates and data
 	
@@ -28,7 +28,7 @@ begin
 	res@cnFillOn = True ;-- turn on contour fill
 	res@cnFillPalette = "rainbow"  
 	res@cnLinesOn            = False              
-	res@tiMainString = "Oklahoma City, Oklahoma (36.5 , -99.5) (34.5, -96.5) "
+	res@tiMainString = "Twitchel Is.(38.1055, -121.6521) (37.6055, -122.1521)"
 	res@tiMainFontHeightF = 0.02
 	res@cnFillMode = "RasterFill"
 	res@cnRasterSmoothingOn = True
