@@ -6,6 +6,7 @@ import OCO2_L1B
 import OCO2_LITE
 import OCO2_L2
 import GREY_DATA_NOV
+import AMERIFLUX_L2_STD
 
 COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B , OCO2_L2 , OCO2_LITE).", "Compare monthly CO2 Data With Ameriflux"]
 
@@ -356,47 +357,50 @@ def procCommands(c):
 
                 nam = input("ENTER THE SOURCE (OCO2_L2 , OCO2_LITE, OCO2_L1B, GREYDATANOV): ")
                 #find the files with the correct coords (directory , longitude, latitude, optional date)
+                try:
                 
-                if(nam == "OCO2_L2"):
-                    files = OCO2_L2.findFilesByCoords(CURR_DIR, long_, lat_,date)
-               
-                elif(nam == "OCO2_L1B"):
-                    files = OCO2_L1B.findFilesByCoords(CURR_DIR, long_, lat_,date)
+                    if(nam == "OCO2_L2"):
+                        files = OCO2_L2.findFilesByCoords(CURR_DIR, long_, lat_,date)
                 
-                elif(nam == "OCO2_LITE"):
-                    files = OCO2_LITE.findFilesByCoords(CURR_DIR, long_, lat_,date)
-                elif(nam == "GREYDATANOV"):
-                    files = GREY_DATA_NOV.findFilesByCoords(CURR_DIR, long_,lat_,date)
+                    elif(nam == "OCO2_L1B"):
+                        files = OCO2_L1B.findFilesByCoords(CURR_DIR, long_, lat_,date)
                     
-                #print file names
-                print("The following files will be placed in the buffer: ")
-                
-                for i in range(len(files[FILE_NAME])):
-                    print(files[FILE_NAME][i])
-                    save(files[FILE_OBJS][i])
-                #save(files[FILE_COORDS])
-
-                #print points that fall in the coordinate range
-                print("Number of points that fall in the region: " + str(len(files[FILE_COORDS])) )
-
-                #write to file?
-                ans = input("Write coords to file?")
-                if(ans == "y"):
-                    nam = input("Enter name of file: ")
-                    saveCoordsToTextFile(nam,  coordsToHamstermapFormat(files[FILE_COORDS] ,[  files[FILE_CO2_LEVELS],files[FILE_TIMES] ] )  )
-        
-                else:
-                    print("Not writing coords to file....")
-                    OCO2_LITE.GriddedAvg()
-
-                #write file names to file?
-                ans = input("Write to file names that fall into the given bounding?")
-                if(ans == "y"):
-                    nam = input("Enter name of file: ")
-                    saveToTextFile(nam,files[FILE_NAME])
-                else:
-                    print("Not writing file names to file...")
-
+                    elif(nam == "OCO2_LITE"):
+                        files = OCO2_LITE.findFilesByCoords(CURR_DIR, long_, lat_,date)
+                    elif(nam == "GREYDATANOV"):
+                        files = GREY_DATA_NOV.findFilesByCoords(CURR_DIR, long_,lat_,date)
+                        
+                    #print file names
+                    print("The following files will be placed in the buffer: ")
+                    
+                    for i in range(len(files[FILE_NAME])):
+                        print(files[FILE_NAME][i])
+                        save(files[FILE_OBJS][i])
+                    #save(files[FILE_COORDS])
+    
+                    #print points that fall in the coordinate range
+                    print("Number of points that fall in the region: " + str(len(files[FILE_COORDS])) )
+    
+                    #write to file?
+                    ans = input("Write coords to file?")
+                    if(ans == "y"):
+                        nam = input("Enter name of file: ")
+                        saveCoordsToTextFile(nam,  coordsToHamstermapFormat(files[FILE_COORDS] ,[  files[FILE_CO2_LEVELS],files[FILE_TIMES] ] )  )
+            
+                    else:
+                        print("Not writing coords to file....")
+                        OCO2_LITE.GriddedAvg()
+    
+                    #write file names to file?
+                    ans = input("Write to file names that fall into the given bounding?")
+                    if(ans == "y"):
+                        nam = input("Enter name of file: ")
+                        saveToTextFile(nam,files[FILE_NAME])
+                    else:
+                        print("Not writing file names to file...")
+                except StandardError:
+                    print("Error with files")
+                    
         if c == 10: #print data set
             
             if CURR_FILE == None:
@@ -464,18 +468,27 @@ def procCommands(c):
                 print("Invalid filename or source")
                 
         if c == 16:#compare current files in VFS with Ameriflux (monthly)
+        
+        
+            FILE_OBJS = 0
+            FILE_NAME = 1
+            FILE_COORDS = 2
+            FILE_CO2_LEVELS = 3
+            FILE_TIMES = 4
+        
+            #try:
             oco2_src = input("ENTER THE SOURCE (OCO2_LITE, OCO2_L2)")
             
-       
+    
             lat_ = input("Enter the latitude you are looking for.")
             long_ =  input("Enter the longitude longitude you are looking for.")
 
             #optional date
-            date = str(input("Enter the date as yymm(optional-enter 'n' otherwise)"))
+            date = str(input("Enter the date as a string yymm(optional-enter 'n' otherwise)"))
             if(date == "n"):
                 date = ""
                 
-            co2_data = OCO2_LITE.findFilesByCoords(CURR_DIR, long_, lat_,date)
+            #co2_data = OCO2_LITE.findFilesByCoords(CURR_DIR, long_, lat_,date)
             
             #save current files
             curr_vfs = FILE_SYS
@@ -488,9 +501,40 @@ def procCommands(c):
             getRoot()
             CURR_DIR = FILE_SYS.root
             
+            files = AMERIFLUX_L2_STD.findCO2ByDate(CURR_DIR, date)
             
             
-             
+            print("The following files will be placed in the buffer: ")
+            
+            for i in range(len(files[FILE_NAME])):
+                print(files[FILE_NAME][i])
+                save(files[FILE_OBJS][i])
+            #save(files[FILE_COORDS])
+
+            #print points that fall in the coordinate range
+            print("Number of points that fall in the region: " + str(len(files[FILE_COORDS])) )
+
+            #write to file?
+            ans = input("Write coords to file?")
+            if(ans == "y"):
+                nam = input("Enter name of file: ")
+                saveCoordsToTextFile(nam,  coordsToHamstermapFormat(files[FILE_COORDS] ,[  files[FILE_CO2_LEVELS],files[FILE_TIMES] ] )  )
+    
+            else:
+                print("Not writing coords to file....")
+                #OCO2_LITE.GriddedAvg()
+
+            #write file names to file?
+            ans = input("Write to file names that fall into the given bounding?")
+            if(ans == "y"):
+                nam = input("Enter name of file: ")
+                saveToTextFile(nam,files[FILE_NAME])
+            else:
+                print("Not writing file names to file...")
+                
+            #except StandardError:
+                #print("File error")
+                
         if c == EXIT:
             print("BYE")
             sys.exit(0)

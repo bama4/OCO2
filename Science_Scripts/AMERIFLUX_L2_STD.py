@@ -6,6 +6,12 @@ import math
 DEFAULT_PATH_TW = "C://Users//Bama4//Downloads//DATA//FLUXNET_DATA//Twitchell California"
 EXT = ".nc"
 
+LAT = 38.1087
+LONG = -121.653
+
+YEAR = 0
+MONTH = 1
+DAY = 2
 
 #return coord of the given dataset
 def processCoordDataSet(data_set):
@@ -82,18 +88,79 @@ def isFileMatch(file_name, reg):
     else:
         return True
 
+#converts DOY parameter to month numbered 1 - 12 and day in format [yyy,m,dd]
+#currently only accepts non-leap years
+#rturns -1 if invalid doy
+def doyToMonth(doy,year):
+    
+    if(year % 4 != 0):
+        
+        #january
+        if(doy >=1 and doy <= 31):
+            return [year,1,doy]
+        
+        #febuary
+        if( (doy >= 32 and doy <= 59)):
+            return [year,2,doy - 31]
+        
+        #march
+        if(doy >= 60 and doy <= 90):
+            return [year,3,doy - 59]
+        
+        #april
+        if(doy >= 91 and doy<= 120):
+           return [year,4,doy - 90]
+            
+        #may
+        if(doy >= 121 and doy<= 151):
+            return [year,5,doy - 120]
+
+        #june
+        if(doy >= 152 and doy <= 181):
+            return [year,6,doy - 151]
+            
+        #july
+        if(doy >= 182 and doy <= 212):
+            return [year,7,doy - 181]
+            
+        #august
+        if(doy >= 213 and doy <= 243):
+            return [year,8,doy - 212]
+            
+        #september
+        if(doy >= 244 and doy <= 273):
+            return [year,9,doy - 243] 
+            
+        #october
+        if(doy >= 274 and doy <= 304):
+            return [year,10,doy - 273]
+            
+        #november
+        if(doy >= 305 and doy <= 334):
+            return [year,11,doy - 304]
+        
+        #december
+        if(doy >= 335 and doy <= 365):
+            return [year,12,doy - 334]
+        print("NO MATCHING MONTH")
+    else: #leap year
+        #code for leap year here
+        print("LEAP YEAR")
+        pass
+            
+            
 #gets CO2 data by date in format yyyymm
-def findCO2ByDate(dir_, date):
+def findCO2ByDate(s_dir, date):
     
     fils = []      #file objects
     fil_names = [] #file names
-    coords = []    #coordinate names
+    coords = []    #coordinates as (x,y)
     type_co2 = []  #CO2 values
     times = []     #times as [yyyy, mm , dd , hh , min , sec]
     
     file_obj = None
 
-    for f in start_dir.files:
+    for f in s_dir.files:
         
         isInFile = False
         
@@ -103,19 +170,39 @@ def findCO2ByDate(dir_, date):
             print("FILE: " + str(f.name) + " had an error")
             continue
             
-        #make sure year matches
-        if(isFileMatch(f.name,date[:4]) == False):
-            continue
-        
+            
         f_day = getDays(file_obj)
         f_year = getYears(file_obj)
-        f_data = getRawCO2()
+        f_data = getRawCO2(file_obj)
         
+        #make sure year matches
+        if(int(date[:4]) != f_year[YEAR]):
+            print("FILE YEAR DOES NOT MATCH GIVEN YEAR")
+            print(date[:4] + " " + str(f_year[YEAR]))
+            continue
         
+       # try:
 
+    
+        for i in range(len(f_data)):
+            
+            #check if month matches
+            if( int(date[2:]) == doyToMonth(f_day[i],int(date[:4]))[MONTH]):
+                fils.append(file_obj)
+                fil_names.append(f.name)
+                type_co2.append(f_data[1])
+                times.append( doyToMonth(f_day[i],int(date[:4])) )
+                coords.append((LAT,LONG))
+                print("DATA ADDED")
+       # except:
+           # print("AMERIFLUX DATASET ERROR")
+    
+    print("AMERIFLUX DATA OBTAINED")
+    
+    return (fils, fil_names, coords, type_co2, times)
 #Check if the two points/numbers are within the given range (num2 to num2-range_)
 #Where num2 are the raw points
-def isInRange(num1,num2,range_):
+def isInRange(num1,num2,range_): 
     p1 = num2
     p2 = num2-range_
     
