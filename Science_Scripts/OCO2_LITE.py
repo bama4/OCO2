@@ -29,6 +29,31 @@ LONG = 2
 MATCHING_POINTS = []
 NUM_THREADS = 50
 
+#average data to given degree resolution
+def GriddedAvg(lon_,lat_,data_,res):
+    avg_lon = []
+    avg_lat = []
+    avg_data= []
+    ctr = 0
+
+    curr_beg_lat = lat_[0]
+    
+    while(ctr != len(lon_)):
+        while( (abs(lat_[ctr] - curr_beg_lat) <= res) or (ctr == len(lon_)) ):
+        
+            ctr = ctr + 1
+        
+        avg_lat.append(avg_lst(lat_[:ctr+1]))
+        avg_lon.append(avg_lst(lon_[:ctr+1]))
+        avg_data.append(avg_lst(data_[:ctr+1]))
+        
+        curr_beg_lat = lat_[ctr]
+        
+    return (avg_lat , avg_lon , avg_data)
+    
+        
+    
+
 #return coord of the given dataset
 def processCoordDataSet(data_set):
     coord_c = int(len(data_set[0])/2)
@@ -245,15 +270,16 @@ def findRawFilesByRawCoords(start_dir,coords):
 #range of the given center coordinate
 def findFilesByCoords(start_dir,long_,lat_, date):
 
-    fils = []
-    fil_names = []
-    coords = []
-    type_co2 = []
-    times = []
+    fils = []      #file objects
+    fil_names = [] #file names
+    coords = []    #coordinate names
+    type_co2 = []  #CO2 values
+    times = []      #times as [yyyy, mm , dd , hh , min , sec]
     
     bound_lat_=0
     bound_long_=0
-
+    is_avg = False # determine if gridded averages should be made
+    
     file_obj = None
     
     range_ = input("Use default range method?")

@@ -7,7 +7,7 @@ import OCO2_LITE
 import OCO2_L2
 import GREY_DATA_NOV
 
-COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B , OCO2_L2 , OCO2_LITE)."]
+COMMANDS = ["Create VFS from root directory","Set Current Directory", "List files of Current Directory","Open/Set File In Current Directory" , "List Groups", "List DataSets", "Display BUFFER Contents","Print Contents of Current Directory","Flush Buffer","Put Files With Coord Range In Buffer","Display DataSet for Current File","Put Files in bound In Buffer","Output Data To File","Display long. average", "Display lat. average", "Run Automatic Script Given file, get all Coords. within a certain point(OCO2_L1B , OCO2_L2 , OCO2_LITE).", "Compare monthly CO2 Data With Ameriflux"]
 
 PATH = ""
 SYS_NAME = "OCO2_DATA_FILES"
@@ -84,6 +84,8 @@ def getRoot():
             ans = OCO2_L2.DEFAULT_PATH
         elif(ans == "GREYDATANOV"):
             ans = GREY_DATA_NOV.DEFAULT_PATH
+        elif(ans == "AMERIFLUX_TW"):
+            ans = AMERIFLUX_L2_STD.DEFAULT_PATH_TW
         try:
             
             os.chdir(ans)
@@ -96,6 +98,9 @@ def getRoot():
             
         isValid = True
         
+    CURR_DIR = 0
+    CURR_FILE = 0
+    
     FILE_SYS = VFS.VFS(SYS_NAME,ans,None)
     FILE_SYS.setVFS(ans)
  
@@ -382,6 +387,7 @@ def procCommands(c):
         
                 else:
                     print("Not writing coords to file....")
+                    OCO2_LITE.GriddedAvg()
 
                 #write file names to file?
                 ans = input("Write to file names that fall into the given bounding?")
@@ -457,6 +463,34 @@ def procCommands(c):
             except StandardError:
                 print("Invalid filename or source")
                 
+        if c == 16:#compare current files in VFS with Ameriflux (monthly)
+            oco2_src = input("ENTER THE SOURCE (OCO2_LITE, OCO2_L2)")
+            
+       
+            lat_ = input("Enter the latitude you are looking for.")
+            long_ =  input("Enter the longitude longitude you are looking for.")
+
+            #optional date
+            date = str(input("Enter the date as yymm(optional-enter 'n' otherwise)"))
+            if(date == "n"):
+                date = ""
+                
+            co2_data = OCO2_LITE.findFilesByCoords(CURR_DIR, long_, lat_,date)
+            
+            #save current files
+            curr_vfs = FILE_SYS
+            curr_dir = CURR_DIR
+            
+            FLIE_SYS = 0
+            CURR_DIR = 0
+            
+            #get ameriflux files... FILE_SYS and CURR_DIR are now ameriflux
+            getRoot()
+            CURR_DIR = FILE_SYS.root
+            
+            
+            
+             
         if c == EXIT:
             print("BYE")
             sys.exit(0)

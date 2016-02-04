@@ -3,7 +3,7 @@ import sys
 import netCDF4
 import math 
 
-DEFAULT_PATH = "C://Users//Bama4//Downloads//DATA//FLUXNET_DATA//Twitchell California"
+DEFAULT_PATH_TW = "C://Users//Bama4//Downloads//DATA//FLUXNET_DATA//Twitchell California"
 EXT = ".nc"
 
 
@@ -30,10 +30,6 @@ def degLongToKm(deg):
 def kmTodegLong(km):
     return km/(KM_LONG)
 
-#converts moles to ppm
-def molesToPPM(mol):
-    return mol/pow(10,6)
-
 #check if water present
 def isWater(w):
     return (WATER == w)
@@ -47,6 +43,14 @@ def isValidLat(lat):
 def isValidLong(lon):
     return (lon >= -180.0 and lon <= 180.0)
 
+#Return years array
+def getYears(data_file):
+    YEARS = data_file.variables["YEAR"]
+    return YEARS
+    
+def getDays(data_file):
+    DOY = data_file.variables["DOY"]
+    return DOY
 
 #get strong CO2
 def getRawCO2(data_file):
@@ -69,16 +73,45 @@ def prompt_print(msg,obj):
         return
 
 #Is FID a match to file 
-def isFileFIDMatch(file_name, fid):
-    if(date == ""):
+def isFileMatch(file_name, reg):
+    if(reg == ""):
         return True
 
-    if(file_name.find(date) == -1):
+    if(file_name.find(reg) == -1):
         return False
     else:
         return True
 
+#gets CO2 data by date in format yyyymm
+def findCO2ByDate(dir_, date):
+    
+    fils = []      #file objects
+    fil_names = [] #file names
+    coords = []    #coordinate names
+    type_co2 = []  #CO2 values
+    times = []     #times as [yyyy, mm , dd , hh , min , sec]
+    
+    file_obj = None
 
+    for f in start_dir.files:
+        
+        isInFile = False
+        
+        try:
+            file_obj = netCDF4.Dataset(f.path,"r")
+        except:
+            print("FILE: " + str(f.name) + " had an error")
+            continue
+            
+        #make sure year matches
+        if(isFileMatch(f.name,date[:4]) == False):
+            continue
+        
+        f_day = getDays(file_obj)
+        f_year = getYears(file_obj)
+        f_data = getRawCO2()
+        
+        
 
 #Check if the two points/numbers are within the given range (num2 to num2-range_)
 #Where num2 are the raw points
