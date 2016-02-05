@@ -3,12 +3,12 @@ import sys
 import netCDF4
 import math 
 
-DEFAULT_PATH_TW = "C://Users//Bama4//Downloads//DATA//FLUXNET_DATA//Twitchell California"
+DEFAULT_PATH_TW = "C://Users//Bama4//Downloads//DATA//FLUXNET_DATA//Twitchell_California"
 EXT = ".nc"
 
 LAT = 38.1087
 LONG = -121.653
-
+INVALID_VAL = -9999.0
 YEAR = 0
 MONTH = 1
 DAY = 2
@@ -180,17 +180,20 @@ def findCO2ByDate(s_dir, date):
             print("FILE YEAR DOES NOT MATCH GIVEN YEAR")
             print(date[:4] + " " + str(f_year[YEAR]))
             continue
-        
+        else:
+            print("FILE AND YEAR MATCH")
        # try:
 
     
         for i in range(len(f_data)):
             
+            
             #check if month matches
-            if( int(date[2:]) == doyToMonth(f_day[i],int(date[:4]))[MONTH]):
+            if( int(date[4:]) == doyToMonth(f_day[i],int(date[4:]))[MONTH] and (f_data[i] != INVALID_VAL)):
+                print(str(date[4:]) + " " +  str(doyToMonth(f_day[i],int(date[4:]))[MONTH]))
                 fils.append(file_obj)
                 fil_names.append(f.name)
-                type_co2.append(f_data[1])
+                type_co2.append(f_data[i])
                 times.append( doyToMonth(f_day[i],int(date[:4])) )
                 coords.append((LAT,LONG))
                 print("DATA ADDED")
@@ -200,6 +203,7 @@ def findCO2ByDate(s_dir, date):
     print("AMERIFLUX DATA OBTAINED")
     
     return (fils, fil_names, coords, type_co2, times)
+    
 #Check if the two points/numbers are within the given range (num2 to num2-range_)
 #Where num2 are the raw points
 def isInRange(num1,num2,range_): 
