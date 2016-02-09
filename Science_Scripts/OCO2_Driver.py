@@ -17,6 +17,12 @@ CURR_DIR = None
 CURR_FILE = None
 
 
+FILE_OBJS = 0
+FILE_NAME = 1
+FILE_COORDS = 2
+FILE_CO2_LEVELS = 3
+FILE_TIMES = 4
+
 BUFFER = []
 EXIT = 99
 
@@ -150,6 +156,44 @@ def getGroup():
 def getDataSet():
     pass
 
+#converts time to day of year where time is in the format[yyyy, mm, dd , hh , mm , ss]
+def dateToDOY(time_lst):
+    
+    YEAR = 0
+    MONTH = 1
+    DAY = 2
+    
+    if(time_lst[YEAR] % 4 != 0): #non-leap year
+        
+            
+        if time_lst[MONTH]== 1:#jan
+            return time_lst[DAY]
+            
+        if time_lst[MONTH]==2:#feb
+            return 31 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 3:#mar
+            return 59 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 4:#apr
+            return 90 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 5:#may
+            return 120 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 6:#june
+            return 151 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 7:#july
+            return 181 + time_lst[DAY]
+    else:
+        pass
+        
+#converts from the [[file_obj], [file_names], [coords], [data], [times])]
+def dataToNumpyFormat(data):
+    
+    pass 
+    
 def save(obj):
     
     global BUFFER
@@ -358,6 +402,8 @@ def procCommands(c):
 
                 nam = input("ENTER THE SOURCE (OCO2_L2 , OCO2_LITE, OCO2_L1B, GREYDATANOV): ")
                 #find the files with the correct coords (directory , longitude, latitude, optional date)
+                #output format will be [[file_obj], [file_names], [coords], [type_co2], [times])]
+                    #where coords are (x,y), and times are [yyyy, mm , dd , hh , mm , ss]
                 try:
                 
                     if(nam == "OCO2_L2"):
@@ -471,11 +517,6 @@ def procCommands(c):
         if c == 16:#compare current files in VFS with Ameriflux (monthly)
         
         
-            FILE_OBJS = 0
-            FILE_NAME = 1
-            FILE_COORDS = 2
-            FILE_CO2_LEVELS = 3
-            FILE_TIMES = 4
         
             #try:
             oco2_src = input("ENTER THE SOURCE (OCO2_LITE, OCO2_L2)")
@@ -540,16 +581,16 @@ def procCommands(c):
             print("BYE")
             sys.exit(0)
             
-def main():
-    
-    while(True):
-        
-        inp = getInput()
-        procCommands(inp)
-        print("\n\n\n")
-        
-    print(inp)
-    
-    
-main()
-    
+# def main():
+#     
+#     while(True):
+#         
+#         inp = getInput()
+#         procCommands(inp)
+#         print("\n\n\n")
+#         
+#     print(inp)
+#     
+#     
+# main()
+#     

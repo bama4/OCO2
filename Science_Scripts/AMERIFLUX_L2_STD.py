@@ -93,7 +93,7 @@ def isFileMatch(file_name, reg):
 #rturns -1 if invalid doy
 def doyToMonth(doy,year):
     
-    if(year % 4 != 0):
+    if(year % 4 != 0):#check for leap year
         
         #january
         if(doy >=1 and doy <= 31):
@@ -145,7 +145,56 @@ def doyToMonth(doy,year):
         print("NO MATCHING MONTH")
     else: #leap year
         #code for leap year here
-        print("LEAP YEAR")
+        print("LEAP YEAR " + str(year))
+        
+        #january
+        if(doy >=1 and doy <= 31):
+            return [year,1,doy]
+        
+        #febuary
+        if( (doy >= 32 and doy <= 60)):
+            return [year,2,doy - 31]
+        
+        #march
+        if(doy >= 61 and doy <= 91):
+            return [year,3,doy - 60]
+        
+        #april
+        if(doy >= 92 and doy<= 121):
+           return [year,4,doy - 91]
+            
+        #may
+        if(doy >= 122 and doy<= 152):
+            return [year,5,doy - 121]
+
+        #june
+        if(doy >= 153 and doy <= 182):
+            return [year,6,doy - 152]
+            
+        #july
+        if(doy >= 183 and doy <= 213):
+            return [year,7,doy - 182]
+            
+        #august
+        if(doy >= 214 and doy <= 244):
+            return [year,8,doy - 213]
+            
+        #september
+        if(doy >= 245 and doy <= 274):
+            return [year,9,doy - 244] 
+            
+        #october
+        if(doy >= 275 and doy <= 305):
+            return [year,10,doy - 274]
+            
+        #november
+        if(doy >= 306 and doy <= 335):
+            return [year,11,doy - 305]
+        
+        #december
+        if(doy >= 336 and doy <= 366):
+            return [year,12,doy - 335]
+        print("NO MATCHING MONTH")
         pass
             
             
@@ -189,8 +238,8 @@ def findCO2ByDate(s_dir, date):
             
             
             #check if month matches
-            if( int(date[4:]) == doyToMonth(f_day[i],int(date[4:]))[MONTH] and (f_data[i] != INVALID_VAL)):
-                print(str(date[4:]) + " " +  str(doyToMonth(f_day[i],int(date[4:]))[MONTH]))
+            if( int(date[4:]) == doyToMonth(f_day[i],int(date[:4]))[MONTH] and (f_data[i] != INVALID_VAL)):
+                print(  str(date[4:]) + " " +  str(  doyToMonth(  f_day[i], int(date[:4]))[MONTH] )   )
                 fils.append(file_obj)
                 fil_names.append(f.name)
                 type_co2.append(f_data[i])
