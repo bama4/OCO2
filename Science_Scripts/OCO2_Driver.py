@@ -186,6 +186,22 @@ def dateToDOY(time_lst):
             
         if time_lst[MONTH]== 7:#july
             return 181 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 8:#August
+            return 212 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 9:#Sept
+            return 243 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 10:#October
+            return 273 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 11:#Nov
+            return 304 + time_lst[DAY]
+            
+        if time_lst[MONTH]== 12:#December
+            return 334 + time_lst[DAY]
+            
     else:
         pass
         
