@@ -1,19 +1,10 @@
 import matplotlib as mat
-
+import numpy as np
 import os
 import math 
+import MySQL_Driver.py
 
 
-#File object ( name , pathname )
-class LinePlot:
-    
-    
-    #init constructor
-    def __init__(self,title,path):
-        self.title = title
-        self.path = path
-        self.data = {}
-        self.obj = None
         
     
         

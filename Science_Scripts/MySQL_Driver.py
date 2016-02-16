@@ -5,14 +5,29 @@ import OCO2_Driver as Handle
 
 class SQL_Driver:
     
-    def __init__(self,schema):
-        self.cnx = SQL.connect(user='root', database= schema, password='123')
+    def __init__(self,schema,pwd):
+        self.cnx = SQL.connect(user='root', database= schema, password=pwd)
         self.cursor = self.cnx.cursor()
         self.curr_table = ""
         
     def updateCurrTable(self,new_table):
         self.curr_table = new_table
         
+    def getSiteData(self, s_name,s_data,s_year, s_month, s_day,name):
+        
+        query = ("SELECT {0} , {1}, {2} , {3}, {4} FROM {5} WHERE {0} = "{6}"".format(
+        
+            s_name,
+            s_data,
+            s_year, 
+            s_month, 
+            s_day,
+            self.curr_table,
+            name)
+            
+            print(query)
+            self.cursor.execute(query)
+            
     #Retrieves given name year month and day data from corresponding named columns s_name, s_year etc. 
     #range is a tuple in which ([yyyy,mm,dd],[yyyy,mm,dd])
     def getDataDateRange(self, s_name,s_data,s_year, s_month, s_day,name, range):
@@ -102,5 +117,13 @@ class SQL_Driver:
         self.cursor.execute(query)
     
     
-    def convertDataToMPlot():
+    def convertDataToMPlot(record):
         pass
+        
+        
+        
+        
+    def main():
+        
+        
+    main()
