@@ -7,7 +7,7 @@ import MySQL_Driver
 import OCO2_Driver
 
 S_DRIVER = MySQL_Driver.SQL_Driver("sciencedata","123")
-COMMANDS = ["Set Data of Region as Current DataSet", "Grid Data by region", "Grid Data by region, year, month","Plot monthly Data By Region", "Display current data"]
+COMMANDS = ["Set Data of Region as Current DataSet", "Grid Data by region", "Grid Data by region, year, month","Plot monthly Data By Region", "Display current data","Plot monthly Data and Compare By Region"]
 
 EXIT = 99
 
@@ -84,10 +84,10 @@ def gridData(res): #gives data located in S_DRIVER.cursor for gridding
     
     return (name, longs, lats , data, time_doy,time_)
 
+
 #data in format (name, longs, lats , data, time_doy,time_)
-def plotByMonth(data,year):
+def avgMonthly(data,year):
     
-    title = data[0] + " " + str(year)
     data_m_avg = 0
     num_days_in_curr_month = 0
     month_data_avg = []
@@ -97,10 +97,15 @@ def plotByMonth(data,year):
     
     for i in range(len(data[5])):
         
-        if(data[5][0] != year):
+        
+        if(data[5][i][0] != year):
             continue
             
-        if(curr_month != data[5][i][1]):
+        if(curr_month == 0):
+            
+            curr_month = data[5][i][1]
+            
+        elif(curr_month != data[5][i][1]):
 
             data_m_avg = data_m_avg/(num_days_in_curr_month*1.0)
             month_data_avg.append(data_m_avg)
@@ -114,14 +119,50 @@ def plotByMonth(data,year):
             
         num_days_in_curr_month += 1
         data_m_avg += data[3][i]
+    return month_data_avg , month_
     
     
-    plt.plot(np.array(month_data_avg), np.array(month_), 'ro')
-    plt.axis([0 , max(np.array(month_data_avg)) , 1 , 12])
+#data in format (name, longs, lats , data, time_doy,time_)
+def plotByMonth(data,year):
+    
+    
+    month_data_avg,month_ = avgMonthly(data,year)
+    print(month_data_avg)
+    print(month_)
+
+    title = data[0] + " "  + str(year)
+    plt.figure().suptitle(title)
+    plt.ylabel("CO2 in PPM")
+    plt.xlabel("MONTHS")
+    plt.plot( np.array(month_), np.array(month_data_avg),'ro')
+    plt.axis([ 1 , 12,300 , 600 ])
+    plt.yticks(np.arange(300,600,10))
+    plt.xticks(np.arange(1,12,1))
     plt.show()
         
             
+def plotByMonth2(data1,data2,year):
+
+    title = data1[0] + " VS " + data2[0] + str(year)
+
+    month_data_avg1,month1_ = avgMonthly(data1,year)
+    month_data_avg2,month2_ = avgMonthly(data2,year)
     
+    print(month_data_avg1)
+    print(month1_)
+
+    print(month_data_avg2)
+    print(month2_)
+    
+    plt.figure().suptitle(title)
+    plt.ylabel("CO2 in PPM")
+    plt.xlabel("MONTHS")
+    plt.plot( np.array(month1_), np.array(month_data_avg1),'bo',np.array(month2_), np.array(month_data_avg2),'ro')
+    plt.axis([ 1 , 12,380 , 450 ])
+    plt.yticks(np.arange(380,450,2.0))
+    plt.xticks(np.arange(1,12,1))
+    plt.show()
+
 
 #taken from  https://scipy.github.io/old-wiki/pages/Cookbook/Matplotlib/Gridding_irregularly_spaced_data.html
 def griddata(x, y, z, binsize=0.01, retbin=True, retloc=True):
@@ -274,12 +315,33 @@ def procCommands(c):
         year = int(input("Enter year"))
         data = gridData(0)
         plotByMonth(data,year)
+        return
         
     if c == 4:
         
         for i in S_DRIVER.cursor:
             print(i)
-            
+        return
+        
+    if c == 5:
+        
+        nam = input("Enter 1st region name")
+        
+        S_DRIVER.getSiteData("Name","Longitude","Latitude","DATA_VAL", "YEAR", "MONTH", "DAY", nam)
+        year = int(input("Enter year"))
+        data1 = gridData(0)
+        
+        
+        nam = input("Enter 2nd region name")
+        
+        S_DRIVER.getSiteData("Name","Longitude","Latitude","DATA_VAL", "YEAR", "MONTH", "DAY", nam)
+        data2 = gridData(0)
+        
+        
+        plotByMonth2(data1,data2,year)
+    
+        return
+        
     if c == EXIT:
         print("BYE")
         sys.exit(0)
