@@ -7,8 +7,7 @@ import MySQL_Driver
 import OCO2_Driver
 
 S_DRIVER = MySQL_Driver.SQL_Driver("sciencedata","123")
-CACHE = []
-COMMANDS = ["Set Data of Region as Current DataSet", "Grid Data by region", "Grid Data by region, year, month", "Display current data"]
+COMMANDS = ["Set Data of Region as Current DataSet", "Grid Data by region", "Grid Data by region, year, month","Plot monthly Data By Region", "Display current data"]
 
 EXIT = 99
 
@@ -56,7 +55,7 @@ def getInput():
 
         
 
-def gridData(): #gives data located in S_DRIVER.cursor for gridding
+def gridData(res): #gives data located in S_DRIVER.cursor for gridding
     
     np_arrays = []
     
@@ -69,20 +68,60 @@ def gridData(): #gives data located in S_DRIVER.cursor for gridding
     longs = [] # 1
     lats = []  # 2
     data = [] # 3
-    time_ = [] # 4 , 5 , 6
+    time_doy = [] # 4 , 5 , 6
+    time_ = []    # 4 , 5 , 6
     
     for entry in S_DRIVER.cursor:
         name = entry[0]
         time_tmp = [entry[4],entry[5],entry[6]]
-        time_.append(OCO2_Driver.dateToDOY(time_tmp))
+        time_doy.append(OCO2_Driver.dateToDOY(time_tmp))
+        time_.append(time_tmp)
         data.append(entry[3])
         longs.append(entry[1])
         lats.append(entry[2])
     
     
     
-    return (name, np.array(longs), np.array(lats) , np.array(data), np.array(time_))
+    return (name, longs, lats , data, time_doy,time_)
 
+#data in format (name, longs, lats , data, time_doy,time_)
+def plotByMonth(data,year):
+    
+    title = data[0] + " " + str(year)
+    data_m_avg = 0
+    num_days_in_curr_month = 0
+    month_data_avg = []
+    month_ = []
+    curr_month = 0
+    num_months = 0
+    
+    for i in range(len(data[5])):
+        
+        if(data[5][0] != year):
+            continue
+            
+        if(curr_month != data[5][i][1]):
+
+            data_m_avg = data_m_avg/(num_days_in_curr_month*1.0)
+            month_data_avg.append(data_m_avg)
+            month_.append(curr_month)
+            num_days_in_curr_month = 0
+            data_m_avg = 0
+            
+            curr_month = data[5][i][1]
+            num_months += 1
+        
+            
+        num_days_in_curr_month += 1
+        data_m_avg += data[3][i]
+    
+    
+    plt.plot(np.array(month_data_avg), np.array(month_), 'ro')
+    plt.axis([0 , max(np.array(month_data_avg)) , 1 , 12])
+    plt.show()
+        
+            
+    
 
 #taken from  https://scipy.github.io/old-wiki/pages/Cookbook/Matplotlib/Gridding_irregularly_spaced_data.html
 def griddata(x, y, z, binsize=0.01, retbin=True, retloc=True):
@@ -212,10 +251,8 @@ def procCommands(c):
     if c == 0: #set data of region as current dataset
         
         nam = input("Enter region name")
-        year = int(input("Enter year"))
-        month = int(input("Enter month"))
         
-        S_DRIVER.getSiteDataByMonth("Name","Longitude","Latitude","DATA_VAL", "YEAR", "MONTH", "DAY", nam,year,month)
+        S_DRIVER.getSiteData("Name","Longitude","Latitude","DATA_VAL", "YEAR", "MONTH", "DAY", nam)
         return
     
     if c == 1: #grid data by region
@@ -228,9 +265,17 @@ def procCommands(c):
         return
     
     if c == 2: #grid data by region, year, month
+        data = gridData()
+        showContour(data)
         return 
         
-    if c == 3:
+    if c == 3:#make plot of time vs. month
+        
+        year = int(input("Enter year"))
+        data = gridData(0)
+        plotByMonth(data,year)
+        
+    if c == 4:
         
         for i in S_DRIVER.cursor:
             print(i)

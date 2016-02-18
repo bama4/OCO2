@@ -90,4 +90,15 @@ def main():
     # Handle.FILE_SYS = 0
     # Handle.CURR_DIR = 0
     
+    #create OCO2_World entries
+    Handle.getRoot()
+    Handle.CURR_DIR = Handle.FILE_SYS.root
+    long_ = input("Enter longitude.")
+    lat_ = input("Enter Latitude.")
+    files =  OCO2_LITE.findFilesByCoords(Handle.CURR_DIR, long_, lat_,"")
+    addData(cnx,files,"OCO2_World")
+    print("Data Complete")
+    Handle.FILE_SYS = 0
+    Handle.CURR_DIR = 0
+    
 main()
