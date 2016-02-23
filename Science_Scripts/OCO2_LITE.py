@@ -338,7 +338,7 @@ def findFilesByCoords(start_dir,long_,lat_, date):
                             #CO2 Levels
                             type_co2.append( getRawCO2(file_obj)[i] )
                             times.append( getTimes(file_obj)[i])
-                            print("POINT ADDED.")
+                           
                             
                             if(isInFile == False):
                                 fil_names.append(f.name)

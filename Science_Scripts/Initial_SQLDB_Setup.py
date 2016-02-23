@@ -96,6 +96,7 @@ def main():
     long_ = input("Enter longitude.")
     lat_ = input("Enter Latitude.")
     files =  OCO2_LITE.findFilesByCoords(Handle.CURR_DIR, long_, lat_,"")
+    print("Adding data now...")
     addData(cnx,files,"OCO2_World")
     print("Data Complete")
     Handle.FILE_SYS = 0
